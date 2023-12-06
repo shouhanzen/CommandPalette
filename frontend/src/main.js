@@ -1,4 +1,5 @@
-const { app, BrowserWindow, globalShortcut } = require('electron');
+import { app, BrowserWindow, globalShortcut } from 'electron';
+import { spawnBackend } from './python_spawner.js';
 
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
@@ -58,3 +59,5 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+let backend = spawnBackend();
