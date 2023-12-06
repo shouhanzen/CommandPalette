@@ -1,6 +1,6 @@
 const { app, BrowserWindow, globalShortcut } = require('electron');
-const { spawnBackend } = require('./python_spawner.js');
 const isDev = require('electron-is-dev');
+const path = require('path');
 
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
@@ -10,12 +10,12 @@ function createWindow() {
   win = new BrowserWindow({
     width: 800,
     height: 600,
-    show: false // Initially hide the window
+    // show: false, // Initially hide the window
   });
 
   // Load next js app
   const startUrl = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
-  
+
   win.loadURL(startUrl);
   win.on('closed', () => win = null);
 }
@@ -63,5 +63,3 @@ app.on('activate', () => {
     createWindow();
   }
 });
-
-let backend = spawnBackend();
