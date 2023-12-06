@@ -1,5 +1,6 @@
-import { app, BrowserWindow, globalShortcut } from 'electron';
-import { spawnBackend } from './python_spawner.js';
+const { app, BrowserWindow, globalShortcut } = require('electron');
+const { spawnBackend } = require('./python_spawner.js');
+const isDev = require('electron-is-dev');
 
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
@@ -12,8 +13,11 @@ function createWindow() {
     show: false // Initially hide the window
   });
 
-  // Load the index.html of the app.
-  win.loadFile('index.html');
+  // Load next js app
+  const startUrl = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
+  
+  win.loadURL(startUrl);
+  win.on('closed', () => win = null);
 }
 
 function toggleWindow() {
@@ -25,7 +29,7 @@ function toggleWindow() {
 }
 
 app.whenReady().then(() => {
-  createWindow();
+  createWindow()
 
   // Register a global shortcut listener.
   const ret = globalShortcut.register('Ctrl+Shift+I', () => {

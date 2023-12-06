@@ -1,12 +1,12 @@
-import { spawn } from 'child_process';
-import path from 'path';
+const { spawn } = require('child_process');
+const path = require('path');
 
-import { fileURLToPath } from 'url';
+const { fileURLToPath } = require('url');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
-export function spawnBackend() {
+function spawnBackend() {
     const pythonScriptPath = path.join(__dirname, '../../backend/src/main.py');
 
     const pythonProcess = spawn('python', [pythonScriptPath]);
@@ -25,3 +25,5 @@ export function spawnBackend() {
 
     return pythonProcess;
 }
+
+module.exports = { spawnBackend };
