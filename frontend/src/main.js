@@ -39,11 +39,13 @@ function toggleWindow() {
   }
 }
 
+const SHORTCUT = 'Ctrl+Shift+Alt+P';
+
 app.whenReady().then(() => {
   createWindow()
 
   // Register a global shortcut listener.
-  const ret = globalShortcut.register('Ctrl+Shift+Alt+I', () => {
+  const ret = globalShortcut.register(SHORTCUT, () => {
     toggleWindow();
   });
 
@@ -52,7 +54,7 @@ app.whenReady().then(() => {
   }
 
   // Check whether a shortcut is registered.
-  console.log(globalShortcut.isRegistered('Ctrl+Shift+I'));
+  console.log(globalShortcut.isRegistered(SHORTCUT));
 });
 
 // Quit when all windows are closed.
@@ -79,12 +81,47 @@ ipcMain.on('minimize-app', () => {
   toggleWindow();
 });
 
-// src/main.js
-ipcMain.on('run-command', (event, command) => {
-
+ipcMain.on('run-command', async (event, command) => {
   // Hide the window
   toggleWindow();
 
-  // Run the command here
-  console.log('Running command:', command);
+  // Check the issuer of the command
+  if (command.issuer === 'uvicorn') {
+    // If the issuer is uvicorn, post the command to the uvicorn server
+    try {
+      const response = await fetch('http://127.0.0.1:8000/run-command', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(command),
+      });
+      const result = await response.json();
+      console.log('Command result:', result);
+    } catch (err) {
+      console.error('Error running command:', err);
+    }
+  } else {
+    // If the issuer is not uvicorn, run the command here
+    console.log('Running command:', command);
+  }
+});
+
+// Pings a series of command contributors
+ipcMain.handle('get-commands', async () => {
+  // Replace this with your actual commands data
+  const commands_data = [
+    { title: "reload", description: "Reloads Window", command: "commands.reload()", issuer: "electron" },
+  ];
+
+  try {
+    // Also get commands from uvicorn server
+    const response = await fetch('http://127.0.0.1:8000/commands');
+    const python_commands = await response.json();
+    commands_data.push(...python_commands);
+  } catch (err) {
+    console.error(err);
+  }
+
+  return commands_data;
 });

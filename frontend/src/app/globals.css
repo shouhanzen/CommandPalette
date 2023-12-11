@@ -71,3 +71,7 @@ body {
 .command-list-item:hover {
   background-color: #333;
 }
+
+.command-list-item:focus {
+  background-color: #333; /* Change this to the color you want */
+}

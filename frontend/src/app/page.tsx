@@ -1,28 +1,27 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const CommandPalette = () => {
   const [commands, setCommands] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const searchRef = useRef(null);
 
-  // Fetch commands from the Electron backend
+  const fetchCommands = async () => {
+    try {
+      const commands = await window.electron.invoke("get-commands", {});
+      setCommands(commands);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch commands on mount
   useEffect(() => {
-    const fetchCommands = async () => {
-      try {
-        const response = await fetch("http://localhost:8000/commands");
-        console.log(response);
-        const data = await response.json();
-        setCommands(data.commands);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchCommands();
   }, []);
 
@@ -30,6 +29,23 @@ const CommandPalette = () => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         window.electron.minimizeApp();
+        return;
+      }
+
+      // Set focus to the search bar
+      let banned_keys = [
+        "Control",
+        "Alt",
+        "Shift",
+        "Meta",
+        "Tab",
+        "Enter",
+        "Escape",
+        "CapsLock",
+      ];
+
+      if (searchRef.current && !banned_keys.includes(event.key)) {
+        searchRef.current.focus();
       }
     };
 
@@ -50,6 +66,7 @@ const CommandPalette = () => {
   return (
     <div className="command-palette">
       <input
+        ref={searchRef}
         type="text"
         className="command-input"
         placeholder="Type a command"
@@ -58,6 +75,11 @@ const CommandPalette = () => {
         onKeyUp={(event) => {
           if (event.key === "Enter" && filteredCommands.length > 0) {
             window.electron.runCommand(filteredCommands[0]);
+          }
+
+          if (event.ctrlKey && event.key === "r") {
+            event.preventDefault();
+            fetchCommands();
           }
         }}
       />
@@ -68,7 +90,7 @@ const CommandPalette = () => {
             key={index}
             tabIndex={index}
             onClick={() => window.electron.runCommand(command)}
-            onKeyPress={(event) => {
+            onKeyUp={(event) => {
               if (event.key === "Enter") {
                 window.electron.runCommand(command);
               }

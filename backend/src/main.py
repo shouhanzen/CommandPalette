@@ -2,13 +2,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
+from typing import List, Callable
+import src.web_interface as web_interface
+
 import uvicorn
 
 
-class Command:
-    def __init__(self, title, description):
-        self.title = title
-        self.description = description
+class Command(BaseModel):
+    title: str
+    description: str
+    command: str
+    issuer: str = "uvicorn"
 
 
 class CommandList:
@@ -21,11 +25,13 @@ class CommandList:
 
 commands_data = CommandList(
     commands=[
-        Command("command1", "This is command 1"),
-        Command("command2", "This is command 2"),
-        Command("command3", "This is command 3"),
+        Command(title="webreg", description="Register for classes", command="webreg"),
     ]
 )
+
+functions = {
+    "webreg": web_interface.webreg,
+}
 
 # Create an instance of FastAPI
 app = FastAPI()
@@ -43,7 +49,16 @@ app.add_middleware(
 # Define a route to return the commands
 @app.get("/commands")
 def get_commands():
-    return commands_data
+    return commands_data.commands
+
+
+@app.post("/run-command")
+def run_command(command: Command):
+    if command.command in functions:
+        functions[command.command]()
+        return {"message": "Command executed successfully"}
+    else:
+        return {"message": "Command not found"}
 
 
 # Uncomment the line below to run the server
