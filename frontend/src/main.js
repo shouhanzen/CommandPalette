@@ -14,6 +14,8 @@ function createWindow() {
 
     frame: false, // Make the window frameless
     transparent: true, // Make the window transparent
+    resizable: false, // Disable resizing of the window
+    show: false, // Initially hide the window
 
     webPreferences: {
       preload: path.join(__dirname, '../public/preload.js'),
@@ -26,6 +28,9 @@ function createWindow() {
 
   win.loadURL(startUrl);
   win.on('closed', () => win = null);
+  win.on('blur', () => {
+    win.hide();
+  });
 
   // Maximize the window to take up the whole screen
   win.maximize();
@@ -76,6 +81,8 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+
 
 ipcMain.on('minimize-app', () => {
   toggleWindow();
