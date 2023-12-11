@@ -56,6 +56,13 @@ const CommandPalette = () => {
     };
   }, []);
 
+  useEffect(() => {
+    window.electron.setSearchTerm((event, term) => {
+      // Handle the new search term here
+      setSearchTerm(term);
+    });
+  }, []);
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 

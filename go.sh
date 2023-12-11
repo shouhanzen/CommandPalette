@@ -15,8 +15,17 @@ start_npm_dev() {
     npm run dev
 }
 
+# Handler for SIGINT (Ctrl+C)
+stop_servers() {
+    echo "Stopping servers..."
+    kill $PID_NPM
+    # Send SIGTERM to Uvicorn to shut it down gracefully
+    kill -TERM $PID_UVICORN
+    exit
+}
+
 # Trap SIGINT (Ctrl+C) and call the handler function
-trap 'echo "Stopping servers..."; kill $PID_UVICORN $PID_NPM; exit' SIGINT
+# trap stop_servers SIGINT
 
 # Start servers in the background and get their process IDs
 start_uvicorn &
@@ -24,8 +33,8 @@ PID_UVICORN=$!
 start_npm_dev &
 PID_NPM=$!
 
-# Wait for any process to exit
-wait -n
+# Wait for npm process to exit
+wait $PID_NPM
 
 # Kill all background processes when one of them exits
 echo "Shutting down..."
