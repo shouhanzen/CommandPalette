@@ -17,11 +17,57 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
   background: linear-gradient(
       to bottom,
       transparent,
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+  overflow: hidden;
+
+  background-color: transparent;
+}
+
+/* CommandPalette.css */
+
+.command-palette {
+  width: 600px;
+  max-height: 400px;
+  background-color: #1e1e1e;
+  color: #fff;
+  border-radius: 5px;
+  padding: 20px;
+  overflow-y: auto;
+
+  outline: none;
+  box-shadow: none;
+}
+
+.command-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  color: #fff;
+  background-color: #333;
+  border: none;
+  border-radius: 5px;
+}
+
+.command-list {
+  list-style: none;
+  padding: 0;
+}
+
+.command-list-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.command-list-item:hover {
+  background-color: #333;
 }

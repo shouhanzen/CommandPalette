@@ -5,10 +5,27 @@ from pydantic import BaseModel
 import uvicorn
 
 
-# Define a class to structure the data
-class CommandList(BaseModel):
-    commands: list
+class Command:
+    def __init__(self, title, description):
+        self.title = title
+        self.description = description
 
+
+class CommandList:
+    def __init__(self, commands=None):
+        if commands is None:
+            self.commands = []
+        else:
+            self.commands = commands
+
+
+commands_data = CommandList(
+    commands=[
+        Command("command1", "This is command 1"),
+        Command("command2", "This is command 2"),
+        Command("command3", "This is command 3"),
+    ]
+)
 
 # Create an instance of FastAPI
 app = FastAPI()
@@ -21,9 +38,6 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
-
-# Sample commands data
-commands_data = CommandList(commands=["command1", "command2", "command3"])
 
 
 # Define a route to return the commands

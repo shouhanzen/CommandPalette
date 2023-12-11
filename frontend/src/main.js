@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 const isDev = require('electron-is-dev');
 const path = require('path');
 
@@ -8,9 +8,17 @@ let win;
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    // width: 800,
+    // height: 600,
     // show: false, // Initially hide the window
+
+    frame: false, // Make the window frameless
+    transparent: true, // Make the window transparent
+
+    webPreferences: {
+      preload: path.join(__dirname, '../public/preload.js'),
+      // other options
+    },
   });
 
   // Load next js app
@@ -18,6 +26,9 @@ function createWindow() {
 
   win.loadURL(startUrl);
   win.on('closed', () => win = null);
+
+  // Maximize the window to take up the whole screen
+  win.maximize();
 }
 
 function toggleWindow() {
@@ -32,7 +43,7 @@ app.whenReady().then(() => {
   createWindow()
 
   // Register a global shortcut listener.
-  const ret = globalShortcut.register('Ctrl+Shift+I', () => {
+  const ret = globalShortcut.register('Ctrl+Shift+Alt+I', () => {
     toggleWindow();
   });
 
@@ -62,4 +73,18 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
+});
+
+ipcMain.on('minimize-app', () => {
+  toggleWindow();
+});
+
+// src/main.js
+ipcMain.on('run-command', (event, command) => {
+
+  // Hide the window
+  toggleWindow();
+
+  // Run the command here
+  console.log('Running command:', command);
 });
