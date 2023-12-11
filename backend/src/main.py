@@ -3,7 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
 from typing import List, Callable
+
 import src.web_interface as web_interface
+import src.cmd_interface as cmd_interface
 
 import uvicorn
 
@@ -26,11 +28,15 @@ class CommandList:
 commands_data = CommandList(
     commands=[
         Command(title="webreg", description="Register for classes", command="webreg"),
+        Command(
+            title="WSL VPN Fix", description="Fix VPN in WSL", command="wsl-vpn-fix"
+        ),
     ]
 )
 
 functions = {
     "webreg": web_interface.webreg,
+    "wsl-vpn-fix": cmd_interface.wsl_vpn_fix,
 }
 
 # Create an instance of FastAPI
