@@ -42,7 +42,7 @@ function toggleWindow() {
     win.hide();
   } else {
     win.show();
-    setSearchTerm('');
+    resetSearch();
   }
 }
 
@@ -135,6 +135,6 @@ ipcMain.handle('get-commands', async () => {
   return commands_data;
 });
 
-function setSearchTerm(term) {
-  win.webContents.send('set-search-term', term);
+function resetSearch(term) {
+  win.webContents.send('reset-search', term);
 }

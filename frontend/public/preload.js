@@ -6,5 +6,5 @@ contextBridge.exposeInMainWorld('electron', {
   runCommand: (command) => ipcRenderer.send('run-command', command),
   invoke: (channel, data) => ipcRenderer.invoke(channel, data),
   
-  setSearchTerm: (term) => ipcRenderer.on('set-search-term', term),
+  resetSearch: (func) => ipcRenderer.on('reset-search', func),
 });

@@ -87,9 +87,14 @@ const CommandPalette = () => {
   }, []);
 
   useEffect(() => {
-    window.electron.setSearchTerm((event, term) => {
+    window.electron.resetSearch((event) => {
       // Handle the new search term here
-      setSearchTerm(term);
+      setSearchTerm("");
+
+      // Focus the search bar
+      if (searchRef.current) {
+        searchRef.current.focus();
+      }
     });
   }, []);
 
