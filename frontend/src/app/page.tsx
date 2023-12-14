@@ -25,18 +25,6 @@ const CommandPalette = () => {
   };
 
   const runCommand = async (command) => {
-    // Add command title to last used list
-    setLastUsedList((lastUsedList) => {
-      let newList = [...lastUsedList];
-      if (newList.indexOf(command.title) !== -1) {
-        newList.splice(newList.indexOf(command.title), 1);
-      }
-      newList.unshift(command.title);
-      return newList;
-    });
-
-    console.log("Last used list: ", lastUsedList);
-
     try {
       await window.electron.runCommand(command);
     } catch (err) {
@@ -47,12 +35,20 @@ const CommandPalette = () => {
   // Fetch commands on mount
   useEffect(() => {
     fetchCommands();
-  }, []);
 
-  // Fetch last used list on mount
-  useEffect(() => {
-    // TODO: This
-    // fetchLastUsedList();
+    // Set last used list
+    window.electron.retrieveMRU().then((mru) => {
+      if (mru === null || mru === undefined) {
+        throw new Error("MRU is null");
+      }
+      setLastUsedList(mru);
+    });
+
+    window.electron.onMRUChange((event, mru) => {
+      console.log("MRU changed: ", mru);
+
+      setLastUsedList(mru);
+    });
   }, []);
 
   useEffect(() => {

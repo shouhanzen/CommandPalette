@@ -1,9 +1,12 @@
 const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 const isDev = require('electron-is-dev');
 const path = require('path');
+const commands = require('./commands');
 
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
+let cmdMRU = []; // Most recently used commands, stores their titles
+const MRU_SIZE = 10;
 
 function createWindow() {
   // Create the browser window.
@@ -84,13 +87,12 @@ app.on('activate', () => {
   }
 });
 
-
-
 ipcMain.on('minimize-app', () => {
   toggleWindow();
 });
 
 ipcMain.on('run-command', async (event, command) => {
+
   // Hide the window
   toggleWindow();
 
@@ -114,14 +116,24 @@ ipcMain.on('run-command', async (event, command) => {
     // If the issuer is not uvicorn, run the command here
     console.log('Running command:', command);
   }
+
+  
+  // Update the MRU list
+  cmdMRU = cmdMRU.filter((cmd_title) => cmd_title !== command.title);
+  cmdMRU.unshift(command.title);
+  if (cmdMRU.length > MRU_SIZE) { // Limit to 10 entries
+    cmdMRU.pop();
+  }
+  console.log('MRU:', cmdMRU);
+
+  // Send the updated MRU list to the renderer
+  win.webContents.send('mru-change', cmdMRU);
 });
 
 // Pings a series of command contributors
 ipcMain.handle('get-commands', async () => {
   // Replace this with your actual commands data
-  const commands_data = [
-    { title: "reload", description: "Reloads Window", command: "commands.reload()", issuer: "electron" },
-  ];
+  const commands_data = commands.commands_data;
 
   try {
     // Also get commands from uvicorn server
@@ -133,6 +145,10 @@ ipcMain.handle('get-commands', async () => {
   }
 
   return commands_data;
+});
+
+ipcMain.handle('retrieve-mru', () => {
+  return cmdMRU;
 });
 
 function resetSearch(term) {
