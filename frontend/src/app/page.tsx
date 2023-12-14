@@ -110,6 +110,13 @@ const CommandPalette = () => {
               window.location.reload();
             }
           }}
+          onKeyDown={(event) => {
+            // If shift tab and search bar is focused, focus the first element in the list
+            if (event.shiftKey && event.key === "Tab") {
+              event.preventDefault();
+              document.getElementsByClassName("command-list-item")[0].focus();
+            }
+          }}
           onBlur={() => {
             setSearchBarFocused(false);
 
