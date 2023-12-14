@@ -38,6 +38,7 @@ function createWindow() {
 
 function toggleWindow() {
   if (win.isVisible()) {
+    win.blur();
     win.hide();
   } else {
     win.show();
