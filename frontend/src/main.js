@@ -2,11 +2,10 @@ const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 const isDev = require('electron-is-dev');
 const path = require('path');
 const commands = require('./commands');
+const cmdMRU = require('./cmd_mru');
 
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
-let cmdMRU = []; // Most recently used commands, stores their titles
-const MRU_SIZE = 10;
 
 function createWindow() {
   // Create the browser window.
@@ -96,6 +95,11 @@ ipcMain.on('run-command', async (event, command) => {
   // Hide the window
   toggleWindow();
 
+  // Update the MRU list
+  // Send the updated MRU list to the renderer
+  mru = cmdMRU.update_cmd_MRU(command);
+  win.webContents.send('mru-change', mru);
+
   // Check the issuer of the command
   if (command.issuer === 'uvicorn') {
     // If the issuer is uvicorn, post the command to the uvicorn server
@@ -115,25 +119,33 @@ ipcMain.on('run-command', async (event, command) => {
   } else {
     // If the issuer is not uvicorn, run the command here
     console.log('Running command:', command);
-  }
 
-  
-  // Update the MRU list
-  cmdMRU = cmdMRU.filter((cmd_title) => cmd_title !== command.title);
-  cmdMRU.unshift(command.title);
-  if (cmdMRU.length > MRU_SIZE) { // Limit to 10 entries
-    cmdMRU.pop();
-  }
-  console.log('MRU:', cmdMRU);
+    // Run the command
+    // First, match the original command
+    original_cmd = commands.commands_data.find((cmd) => cmd.title === command.title);
+    console.log('Original command:', original_cmd);
 
-  // Send the updated MRU list to the renderer
-  win.webContents.send('mru-change', cmdMRU);
+    if (original_cmd) {
+      // If the original command is found, run it
+      original_cmd.command(win);
+    } else {
+      // Raise exception
+      throw `Command not found: ${command.title}`;
+    }
+  }
 });
 
 // Pings a series of command contributors
 ipcMain.handle('get-commands', async () => {
   // Replace this with your actual commands data
-  const commands_data = commands.commands_data;
+  let commands_data = [];
+  
+  // Strip out the commands from the commands data
+  for (command in commands.commands_data) {
+    let cmd = {... commands.commands_data[command]};
+    delete cmd['command'];
+    commands_data.push(cmd);
+  }
 
   try {
     // Also get commands from uvicorn server
@@ -144,11 +156,21 @@ ipcMain.handle('get-commands', async () => {
     console.error(err);
   }
 
+  // Check that commands all have unique titles
+  let titles = new Set();
+  for (command in commands_data) {
+    let title = commands_data[command].title;
+    if (titles.has(title)) {
+      console.error(`Duplicate command title: ${title}`);
+    }
+    titles.add(title);
+  }
+
   return commands_data;
 });
 
 ipcMain.handle('retrieve-mru', () => {
-  return cmdMRU;
+  return cmdMRU.mru;
 });
 
 function resetSearch(term) {
