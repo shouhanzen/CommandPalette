@@ -25,6 +25,18 @@ const CommandPalette = () => {
   };
 
   const runCommand = async (command) => {
+    // Add command title to last used list
+    setLastUsedList((lastUsedList) => {
+      let newList = [...lastUsedList];
+      if (newList.indexOf(command.title) !== -1) {
+        newList.splice(newList.indexOf(command.title), 1);
+      }
+      newList.unshift(command.title);
+      return newList;
+    });
+
+    console.log("Last used list: ", lastUsedList);
+
     try {
       await window.electron.runCommand(command);
     } catch (err) {
@@ -87,6 +99,20 @@ const CommandPalette = () => {
   const filteredCommands = commands.filter((command) =>
     command.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  filteredCommands.sort((a, b) => {
+    let aIndex = lastUsedList.indexOf(a.title);
+    let bIndex = lastUsedList.indexOf(b.title);
+
+    if (aIndex === -1 && bIndex === -1) {
+      return 0;
+    } else if (aIndex === -1) {
+      return 1;
+    } else if (bIndex === -1) {
+      return -1;
+    } else {
+      return aIndex - bIndex;
+    }
+  });
 
   return (
     <div className="command-palette">
