@@ -1,9 +1,35 @@
 import webbrowser
+from src.types import *
+import json
 
 
 def open_url(url: str):
+    print(f"Opening {url}")
+
     webbrowser.open(url)
 
 
-def webreg():
-    open_url("https://act.ucsd.edu/webreg2")
+def get_commands():
+    # Load the websites from the JSON file
+    with open("src/websites.json", "r") as f:
+        websites = json.load(f)
+
+    # Create a Command object for each website
+    commands = []
+
+    for website in websites:
+        description = ""
+        try:
+            description = website["description"]
+        except KeyError:
+            pass
+
+        commands.append(
+            Command(
+                title=website["title"],
+                description=description,
+                command=lambda url=website["url"]: open_url(url),
+            )
+        )
+
+    return commands

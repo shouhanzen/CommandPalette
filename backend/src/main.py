@@ -1,43 +1,39 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from pydantic import BaseModel
-from typing import List, Callable
+from src.types import *
 
 import src.web_interface as web_interface
 import src.cmd_interface as cmd_interface
 
 import uvicorn
 
-
-class Command(BaseModel):
-    title: str
-    description: str
-    command: str
-    issuer: str = "uvicorn"
-
-
-class CommandList:
-    def __init__(self, commands=None):
-        if commands is None:
-            self.commands = []
-        else:
-            self.commands = commands
-
-
-commands_data = CommandList(
+base_commands = CommandList(
     commands=[
-        Command(title="webreg", description="Register for classes", command="webreg"),
         Command(
-            title="WSL VPN Fix", description="Fix VPN in WSL", command="wsl-vpn-fix"
+            title="WSL VPN Fix",
+            description="Fix VPN in WSL",
+            command=cmd_interface.wsl_vpn_fix,
         ),
     ]
 )
 
-functions = {
-    "webreg": web_interface.webreg,
-    "wsl-vpn-fix": cmd_interface.wsl_vpn_fix,
-}
+
+def build_commands_list():
+    out = CommandList()
+    for command in base_commands.commands:
+        out.commands.append(command)
+
+    for command in web_interface.get_commands():
+        out.commands.append(command)
+
+    # Assert that command titles are unique
+    titles = []
+    for command in out.commands:
+        assert command.title not in titles
+        titles.append(command.title)
+
+    return out
+
 
 # Create an instance of FastAPI
 app = FastAPI()
@@ -55,16 +51,24 @@ app.add_middleware(
 # Define a route to return the commands
 @app.get("/commands")
 def get_commands():
-    return commands_data.commands
+    # Build simplified objects
+    serializable_commands = []
+    for command in build_commands_list().commands:
+        serializable_commands.append(SerializableCommand(**command.dict()))
+
+    return serializable_commands
 
 
 @app.post("/run-command")
-def run_command(command: Command):
-    if command.command in functions:
-        functions[command.command]()
-        return {"message": "Command executed successfully"}
-    else:
-        return {"message": "Command not found"}
+def run_command(command: SerializableCommand):
+    print(f"Running command: {command.title}")
+
+    for c in build_commands_list().commands:
+        if c.title == command.title:
+            c.command()
+            return {"message": "Command executed successfully"}
+
+    return {"message": "Command not found"}
 
 
 # Uncomment the line below to run the server
