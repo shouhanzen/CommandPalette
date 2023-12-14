@@ -94,8 +94,17 @@ const CommandPalette = () => {
               window.location.reload();
             }
           }}
-          onBlur={() => setSearchBarFocused(false)}
-          onFocus={() => setSearchBarFocused(true)}
+          onBlur={() => {
+            setSearchBarFocused(false);
+
+            // Focus second element in the list
+            if (filteredCommands.length > 1) {
+              document.getElementsByClassName("command-list-item")[1].focus();
+            }
+          }}
+          onFocus={() => {
+            setSearchBarFocused(true);
+          }}
         />
       </div>
 
