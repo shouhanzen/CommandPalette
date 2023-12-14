@@ -118,3 +118,19 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555; /* color of the scroll thumb when hovering */
 }
+
+.error-message {
+  color: #ff0000; /* red text */
+  background-color: #ffe6e6; /* light red background */
+  padding: 10px; /* some padding */
+  border-radius: 5px; /* rounded corners */
+  margin: 10px 0; /* some margin */
+}
+
+.loading-message {
+  color: #fff; /* blue text */
+  background-color: #1e1e1e; /* light blue background */
+  padding: 10px; /* some padding */
+  border-radius: 5px; /* rounded corners */
+  margin: 10px 0; /* some margin */
+}

@@ -10,6 +10,8 @@ const CommandPalette = () => {
   const [searchBarFocused, setSearchBarFocused] = useState(false);
   const searchRef = useRef(null);
 
+  const [lastUsedList, setLastUsedList] = useState([]);
+
   const fetchCommands = async () => {
     try {
       const commands = await window.electron.invoke("get-commands", {});
@@ -22,9 +24,23 @@ const CommandPalette = () => {
     }
   };
 
+  const runCommand = async (command) => {
+    try {
+      await window.electron.runCommand(command);
+    } catch (err) {
+      setError(err);
+    }
+  };
+
   // Fetch commands on mount
   useEffect(() => {
     fetchCommands();
+  }, []);
+
+  // Fetch last used list on mount
+  useEffect(() => {
+    // TODO: This
+    // fetchLastUsedList();
   }, []);
 
   useEffect(() => {
@@ -65,8 +81,8 @@ const CommandPalette = () => {
     });
   }, []);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) return <div className="loading-message">Loading...</div>;
+  if (error) return <div className="error-message">Error: {error.message}</div>;
 
   const filteredCommands = commands.filter((command) =>
     command.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -84,7 +100,7 @@ const CommandPalette = () => {
           onChange={(event) => setSearchTerm(event.target.value)}
           onKeyUp={(event) => {
             if (event.key === "Enter" && filteredCommands.length > 0) {
-              window.electron.runCommand(filteredCommands[0]);
+              runCommand(filteredCommands[0]);
             }
 
             if (event.ctrlKey && event.key === "r") {
@@ -98,9 +114,9 @@ const CommandPalette = () => {
             setSearchBarFocused(false);
 
             // Focus second element in the list
-            if (filteredCommands.length > 1) {
-              document.getElementsByClassName("command-list-item")[1].focus();
-            }
+            // if (filteredCommands.length > 1) {
+            //   document.getElementsByClassName("command-list-item")[1].focus();
+            // }
           }}
           onFocus={() => {
             setSearchBarFocused(true);
@@ -117,10 +133,10 @@ const CommandPalette = () => {
               }`}
               key={index}
               tabIndex={index}
-              onClick={() => window.electron.runCommand(command)}
+              onClick={() => runCommand(command)}
               onKeyUp={(event) => {
                 if (event.key === "Enter") {
-                  window.electron.runCommand(command);
+                  runCommand(command);
                 }
               }}
             >
