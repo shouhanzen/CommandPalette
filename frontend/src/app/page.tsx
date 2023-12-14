@@ -7,11 +7,13 @@ const CommandPalette = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchBarFocused, setSearchBarFocused] = useState(false);
   const searchRef = useRef(null);
 
   const fetchCommands = async () => {
     try {
       const commands = await window.electron.invoke("get-commands", {});
+      console.log("Commands fetched: ", commands);
       setCommands(commands);
     } catch (err) {
       setError(err);
@@ -72,42 +74,53 @@ const CommandPalette = () => {
 
   return (
     <div className="command-palette">
-      <input
-        ref={searchRef}
-        type="text"
-        className="command-input"
-        placeholder="Type a command"
-        value={searchTerm}
-        onChange={(event) => setSearchTerm(event.target.value)}
-        onKeyUp={(event) => {
-          if (event.key === "Enter" && filteredCommands.length > 0) {
-            window.electron.runCommand(filteredCommands[0]);
-          }
+      <div className="command-palette-header">
+        <input
+          ref={searchRef}
+          type="text"
+          className="command-input"
+          placeholder="Type a command"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          onKeyUp={(event) => {
+            if (event.key === "Enter" && filteredCommands.length > 0) {
+              window.electron.runCommand(filteredCommands[0]);
+            }
 
-          if (event.ctrlKey && event.key === "r") {
-            event.preventDefault();
-            fetchCommands();
-          }
-        }}
-      />
-      <ul className="command-list">
-        {filteredCommands.map((command, index) => (
-          <li
-            className="command-list-item"
-            key={index}
-            tabIndex={index}
-            onClick={() => window.electron.runCommand(command)}
-            onKeyUp={(event) => {
-              if (event.key === "Enter") {
-                window.electron.runCommand(command);
-              }
-            }}
-          >
-            <strong>{command.title}</strong>
-            <p>{command.description}</p>
-          </li>
-        ))}
-      </ul>
+            if (event.ctrlKey && event.key === "r") {
+              event.preventDefault();
+
+              // Reload page
+              window.location.reload();
+            }
+          }}
+          onBlur={() => setSearchBarFocused(false)}
+          onFocus={() => setSearchBarFocused(true)}
+        />
+      </div>
+
+      <div className="command-palette-body">
+        <ul className="command-list">
+          {filteredCommands.map((command, index) => (
+            <li
+              className={`command-list-item ${
+                searchBarFocused && index == 0 ? "highlighted" : ""
+              }`}
+              key={index}
+              tabIndex={index}
+              onClick={() => window.electron.runCommand(command)}
+              onKeyUp={(event) => {
+                if (event.key === "Enter") {
+                  window.electron.runCommand(command);
+                }
+              }}
+            >
+              <strong>{command.title}</strong>
+              <p>{command.description}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

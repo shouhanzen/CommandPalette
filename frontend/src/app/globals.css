@@ -41,21 +41,40 @@ body {
   background-color: #1e1e1e;
   color: #fff;
   border-radius: 5px;
-  padding: 20px;
   overflow-y: auto;
 
   outline: none;
   box-shadow: none;
+
+  position: fixed;
+  top: 15%;
+}
+
+.command-palette-body {
+  height: 100%;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  padding-top: 5px;
 }
 
 .command-input {
   width: 100%;
   padding: 10px;
-  margin-bottom: 20px;
   color: #fff;
   background-color: #333;
   border: none;
   border-radius: 5px;
+}
+
+.command-palette-header {
+    /* Keep header on top */
+    position: sticky;
+    top: 0;
+    z-index: 1; /* Ensure it sits on top of other elements */
+
+    padding: 20px;
+    background-color: #1e1e1e;
 }
 
 .command-list {
@@ -66,6 +85,8 @@ body {
 .command-list-item {
   padding: 10px;
   cursor: pointer;
+  border-radius: 5px;
+
 }
 
 .command-list-item:hover {
@@ -74,4 +95,26 @@ body {
 
 .command-list-item:focus {
   background-color: #333; /* Change this to the color you want */
+}
+
+.highlighted {
+  background-color: #2e2e2e;
+}
+
+/* Applies to all scrollbars */
+::-webkit-scrollbar {
+  width: 10px; /* width of the entire scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #1e1e1e; /* color of the tracking area */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; /* color of the scroll thumb */
+  border-radius: 5px; /* roundness of the scroll thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* color of the scroll thumb when hovering */
 }
