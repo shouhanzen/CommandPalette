@@ -6,5 +6,33 @@
     {
         "title": "webreg",
         "url": "https://act.ucsd.edu/webreg2"
+    },
+    {
+        "title": "VAC UCSD",
+        "url": "https://vac.ucsd.edu"
+    },
+    {
+        "title": "Degree Planner",
+        "url": "https://degree-planner.ucsd.edu"
+    },
+    {
+        "title": "Degree Audit",
+        "url": "https://act.ucsd.edu/studentDars/select"
+    },
+    {
+        "title": "TritonLink",
+        "url": "http://mytritonlink.ucsd.edu/"
+    },
+    {
+        "title": "ITS Pro: Timesheet",
+        "url": "https://its-pro.ucsd.edu/secure/Tempo.jspa#/my-work/timesheet"
+    },
+    {
+        "title": "Collab: ETS",
+        "url": "https://ucsdcollab.atlassian.net/wiki/spaces/ETS/overview"
+    },
+    {
+        "title": "Ecotime",
+        "url": "https://ecotimecampus.ucsd.edu"
     }
 ]
