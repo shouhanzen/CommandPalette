@@ -105,7 +105,7 @@ async function get_commands() {
 }
 
 async function runCommand(command, win, app) {
-      // Check the issuer of the command
+  // Check the issuer of the command
   for (issuer in command_issuers) {
     if (command.issuer === command_issuers[issuer].name) {
       // If the issuer is known, run the command

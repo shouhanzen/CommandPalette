@@ -104,19 +104,10 @@ const CommandPalette = () => {
   if (error) return <div className="error-message">Error: {error.message}</div>;
 
   const filteredCommands = commands.filter((command) => {
-    let inTitle = command.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    let inDescription = command.description
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    let inTags =
-      "tags" in command &&
-      command.tags
-        .map((tag) => tag.toLowerCase())
-        .some((tag) => tag.includes(searchTerm.toLowerCase()));
+    let numInPool = getTermOverlap(searchTerm, command);
+    let inPool = numInPool === searchTerm.split(" ").length;
 
-    return inTitle || inDescription || inTags;
+    return inPool;
   });
 
   filteredCommands.sort(compareCommands(lastUsedList, searchTerm));
@@ -199,6 +190,25 @@ const CommandPalette = () => {
   );
 };
 
+function getTermOverlap(searchTerm: string, command: Command) {
+  let split_terms = searchTerm.toLowerCase().split(" ");
+
+  let word_pool = command.title.toLowerCase().split(" ");
+  if ("tags" in command) {
+    word_pool = word_pool.concat(command.tags.map((tag) => tag.toLowerCase()));
+  }
+  word_pool = word_pool.concat(command.description.toLowerCase().split(" "));
+
+  let numInPool = 0;
+  for (let term of split_terms) {
+    if (word_pool.some((word) => word.startsWith(term))) {
+      numInPool++;
+    }
+  }
+
+  return numInPool;
+}
+
 function compareCommands(
   lastUsedList: never[],
   searchTerm: string
@@ -209,22 +219,10 @@ function compareCommands(
 
     // If equally matched rank, sort by whichever has the search term first
     if (aIndex === bIndex) {
-      let aSearchIndex = a.title
-        .toLowerCase()
-        .indexOf(searchTerm.toLowerCase());
-      let bSearchIndex = b.title
-        .toLowerCase()
-        .indexOf(searchTerm.toLowerCase());
+      let aSearchScore = getTermOverlap(searchTerm, a);
+      let bSearchScore = getTermOverlap(searchTerm, b);
 
-      if (aSearchIndex === bSearchIndex) {
-        return 0;
-      } else if (aSearchIndex === -1) {
-        return 1;
-      } else if (bSearchIndex === -1) {
-        return -1;
-      } else {
-        return aSearchIndex - bSearchIndex;
-      }
+      return bSearchScore - aSearchScore;
     }
 
     if (aIndex === -1) {
