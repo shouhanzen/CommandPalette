@@ -104,9 +104,19 @@ const CommandPalette = () => {
     let aIndex = lastUsedList.indexOf(a.title);
     let bIndex = lastUsedList.indexOf(b.title);
 
-    if (aIndex === -1 && bIndex === -1) {
-      return 0;
-    } else if (aIndex === -1) {
+    // If equally matched rank, sort by whichever has the search term first
+    if (aIndex === bIndex) {
+      let aSearchIndex = a.title
+        .toLowerCase()
+        .indexOf(searchTerm.toLowerCase());
+      let bSearchIndex = b.title
+        .toLowerCase()
+        .indexOf(searchTerm.toLowerCase());
+
+      return aSearchIndex - bSearchIndex;
+    }
+
+    if (aIndex === -1) {
       return 1;
     } else if (bIndex === -1) {
       return -1;

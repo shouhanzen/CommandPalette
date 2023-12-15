@@ -6,6 +6,7 @@ const cmdMRU = require('./cmd_mru');
 
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
+const SHORTCUT = 'Ctrl+Shift+Alt+P';
 
 function createWindow() {
   // Create the browser window.
@@ -47,8 +48,6 @@ function toggleWindow() {
     resetSearch();
   }
 }
-
-const SHORTCUT = 'Ctrl+Shift+Alt+P';
 
 app.whenReady().then(() => {
   createWindow()
@@ -105,7 +104,7 @@ ipcMain.on('run-command', async (event, command) => {
   let mru = cmdMRU.update_cmd_MRU(command);
   win.webContents.send('mru-change', mru);
 
-  commands.runCommand(command, win);
+  commands.runCommand(command, win, app);
 });
 
 // Pings a series of command contributors

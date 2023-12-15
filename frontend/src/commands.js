@@ -1,12 +1,17 @@
 const cmdMRU = require("./cmd_mru.js");
 
-function clear_cmd_MRU(win) {
+function clear_cmd_MRU(win, app) {
     cmdMRU.clear_cmd_MRU();
     win.webContents.send('mru-change', cmdMRU.mru);
 }
 
+function quit_prog(win, app) {
+    app.quit();
+}
+
 const commands_data = [
     { title: "Clear Command History", description: "Clears CMD MRU", command: clear_cmd_MRU, issuer: "electron", closes_palette: false },
+    { title: "Quit", description: "Quits the program", command: quit_prog, issuer: "electron", closes_palette: false },
 ];
 
 async function get_commands() {
@@ -41,7 +46,7 @@ async function get_commands() {
     return commands_temp;
 }
 
-async function runCommand(command, win) {
+async function runCommand(command, win, app) {
       // Check the issuer of the command
   if (command.issuer === 'uvicorn') {
     // If the issuer is uvicorn, post the command to the uvicorn server
@@ -69,7 +74,7 @@ async function runCommand(command, win) {
 
     if (original_cmd) {
       // If the original command is found, run it
-      original_cmd.command(win);
+      original_cmd.command(win, app);
     } else {
       // Raise exception
       throw `Command not found: ${command.title}`;
