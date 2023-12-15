@@ -2,8 +2,14 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
+interface Command {
+  title: string;
+  description: string;
+  tags: string[];
+}
+
 const CommandPalette = () => {
-  const [commands, setCommands] = useState([]);
+  const [commands, setCommands] = useState([] as Command[]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -97,33 +103,25 @@ const CommandPalette = () => {
   if (isLoading) return <div className="loading-message">Loading...</div>;
   if (error) return <div className="error-message">Error: {error.message}</div>;
 
-  const filteredCommands = commands.filter((command) =>
-    command.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  filteredCommands.sort((a, b) => {
-    let aIndex = lastUsedList.indexOf(a.title);
-    let bIndex = lastUsedList.indexOf(b.title);
+  const filteredCommands = commands.filter((command) => {
+    let inTitle = command.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    let inDescription = command.description
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    let inTags =
+      "tags" in command &&
+      command.tags
+        .map((tag) => tag.toLowerCase())
+        .some((tag) => tag.includes(searchTerm.toLowerCase()));
 
-    // If equally matched rank, sort by whichever has the search term first
-    if (aIndex === bIndex) {
-      let aSearchIndex = a.title
-        .toLowerCase()
-        .indexOf(searchTerm.toLowerCase());
-      let bSearchIndex = b.title
-        .toLowerCase()
-        .indexOf(searchTerm.toLowerCase());
-
-      return aSearchIndex - bSearchIndex;
-    }
-
-    if (aIndex === -1) {
-      return 1;
-    } else if (bIndex === -1) {
-      return -1;
-    } else {
-      return aIndex - bIndex;
-    }
+    return inTitle || inDescription || inTags;
   });
+
+  console.log("Last used list: ", lastUsedList);
+
+  filteredCommands.sort(compareCommands(lastUsedList, searchTerm));
 
   return (
     <div className="command-palette">
@@ -193,5 +191,43 @@ const CommandPalette = () => {
     </div>
   );
 };
+
+function compareCommands(
+  lastUsedList: never[],
+  searchTerm: string
+): ((a: Command, b: Command) => number) | undefined {
+  return (a, b) => {
+    let aIndex = lastUsedList.indexOf(a.title);
+    let bIndex = lastUsedList.indexOf(b.title);
+
+    // If equally matched rank, sort by whichever has the search term first
+    if (aIndex === bIndex) {
+      let aSearchIndex = a.title
+        .toLowerCase()
+        .indexOf(searchTerm.toLowerCase());
+      let bSearchIndex = b.title
+        .toLowerCase()
+        .indexOf(searchTerm.toLowerCase());
+
+      if (aSearchIndex === bSearchIndex) {
+        return 0;
+      } else if (aSearchIndex === -1) {
+        return 1;
+      } else if (bSearchIndex === -1) {
+        return -1;
+      } else {
+        return aSearchIndex - bSearchIndex;
+      }
+    }
+
+    if (aIndex === -1) {
+      return 1;
+    } else if (bIndex === -1) {
+      return -1;
+    } else {
+      return aIndex - bIndex;
+    }
+  };
+}
 
 export default CommandPalette;
