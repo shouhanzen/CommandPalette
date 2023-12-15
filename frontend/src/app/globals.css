@@ -87,6 +87,8 @@ body {
   cursor: pointer;
   border-radius: 5px;
 
+  display: flex;
+  align-items: center;
 }
 
 .command-list-item:hover {
@@ -95,6 +97,13 @@ body {
 
 .command-list-item:focus {
   background-color: #333; /* Change this to the color you want */
+}
+
+.command-description {
+  margin-left: auto;
+  align-self: flex-end;
+
+  font-size: small;
 }
 
 .highlighted {
@@ -133,4 +142,11 @@ body {
   padding: 10px; /* some padding */
   border-radius: 5px; /* rounded corners */
   margin: 10px 0; /* some margin */
+}
+
+.command-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  object-fit: contain;
 }

@@ -10,8 +10,24 @@ function quit_prog(win, app) {
 }
 
 const commands_data = [
-    { title: "Clear Command History", description: "Clears CMD MRU", command: clear_cmd_MRU, issuer: "electron", closes_palette: false, tags: ["MRU"] },
-    { title: "Quit", description: "Quits the program", command: quit_prog, issuer: "electron", closes_palette: false, tags: ["Exit", "Leave"] },
+    { 
+      title: "Clear Command History", 
+      description: "Clears CMD MRU", 
+      command: clear_cmd_MRU, 
+      issuer: "electron", 
+      closes_palette: false, 
+      tags: ["MRU"],
+      icon: "palette.svg",
+    },
+    { 
+      title: "Quit", 
+      description: "Quits the program", 
+      command: quit_prog, 
+      issuer: "electron", 
+      closes_palette: false, 
+      tags: ["Exit", "Leave"],
+      icon: "palette.svg",
+    },
 ];
 
 async function get_commands() {

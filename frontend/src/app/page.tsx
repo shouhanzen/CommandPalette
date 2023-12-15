@@ -119,8 +119,6 @@ const CommandPalette = () => {
     return inTitle || inDescription || inTags;
   });
 
-  console.log("Last used list: ", lastUsedList);
-
   filteredCommands.sort(compareCommands(lastUsedList, searchTerm));
 
   return (
@@ -182,8 +180,17 @@ const CommandPalette = () => {
                 }
               }}
             >
+              {"icon" in command ? (
+                <span className="command-icon-span">
+                  <img
+                    src={command.icon as string}
+                    alt="icon"
+                    className="command-icon"
+                  />
+                </span>
+              ) : null}
               <strong>{command.title}</strong>
-              <p>{command.description}</p>
+              <p className="command-description">{command.description}</p>
             </li>
           ))}
         </ul>
