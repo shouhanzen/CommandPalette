@@ -30,6 +30,13 @@ const commands_data = [
     },
 ];
 
+const command_issuers = [
+  {
+    name: "uvicorn",
+    url: "http://127.0.0.1:8000",
+  },
+]
+
 async function get_commands() {
     // Strip out the commands from the commands data
     let commands_temp = [];
@@ -40,13 +47,46 @@ async function get_commands() {
         commands_temp.push(cmd);
     }
 
-    try {
-        // Also get commands from uvicorn server
-        const response = await fetch('http://127.0.0.1:8000/commands');
-        const python_commands = await response.json();
-        commands_temp.push(...python_commands);
-    } catch (err) {
-        console.error(err);
+    // Assert that issuers are unique
+    let issuers = new Set();
+    for (issuer in command_issuers) {
+        let name = command_issuers[issuer].name;
+        if (issuers.has(name)) {
+        console.error(`Duplicate issuer name: ${name}`);
+        }
+        issuers.add(name);
+    }
+
+    // Retrieve commands from each issuer
+    for (issuer in command_issuers) {
+        try {
+            const response = await fetch(command_issuers[issuer].url + "/commands");
+            // Check if the response is valid
+            if (!response.ok) {
+                throw `Error retrieving commands from ${issuer.name}: ${response.status} ${response.statusText}`;
+            }
+
+            const commands = await response.json();
+
+            for (c_ind in commands) {
+                command = commands[c_ind];
+                command.issuer = command_issuers[issuer].name;
+
+                if (!("icon" in command))
+                {
+
+                }
+                else if (command.icon === "")
+                  delete command.icon;
+                else {
+                  command.icon = command_issuers[issuer].url + command.icon;
+                }
+            }
+
+            commands_temp.push(...commands);
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     // Check that commands all have unique titles
@@ -59,27 +99,34 @@ async function get_commands() {
         titles.add(title);
     }
 
+    console.log("Commands:", commands_temp);
+
     return commands_temp;
 }
 
 async function runCommand(command, win, app) {
       // Check the issuer of the command
-  if (command.issuer === 'uvicorn') {
-    // If the issuer is uvicorn, post the command to the uvicorn server
-    try {
-      const response = await fetch('http://127.0.0.1:8000/run-command', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(command),
-      });
-      const result = await response.json();
-      console.log('Command result:', result);
-    } catch (err) {
-      console.error('Error running command:', err);
+  for (issuer in command_issuers) {
+    if (command.issuer === command_issuers[issuer].name) {
+      // If the issuer is known, run the command
+      try {
+        const response = await fetch(command_issuers[issuer].url + "/run-command", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(command),
+        });
+        const result = await response.json();
+        console.log('Command result:', result);
+      } catch (err) {
+        console.error('Error running command:', err);
+      }
+      return;
     }
-  } else {
+  }
+
+  if (command.issuer === 'electron') {
     // If the issuer is not uvicorn, run the command here
     console.log('Running command:', command);
 
@@ -95,6 +142,9 @@ async function runCommand(command, win, app) {
       // Raise exception
       throw `Command not found: ${command.title}`;
     }
+  } else {
+    // Raise exception
+    throw `Issuer not found: ${command.issuer}`;
   }
 }
 

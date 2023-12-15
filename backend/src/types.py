@@ -5,18 +5,18 @@ from typing import List, Callable
 class Command(BaseModel):
     title: str
     description: str
-    issuer: str = "uvicorn"
     command: Callable = None
     tags: List[str] = []
     closes_palette: bool = True
+    icon: str = ""
 
 
 class SerializableCommand(BaseModel):
     title: str
     description: str
-    issuer: str = "uvicorn"
     tags: List[str] = []
     closes_palette: bool = True
+    icon: str = ""
 
 
 class CommandList:

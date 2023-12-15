@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from src.types import *
 
 import src.web_interface as web_interface
@@ -79,6 +80,9 @@ def run_command(command: SerializableCommand):
 
 # Link in various routers
 app.include_router(spotify_router)
+
+# Icons
+app.mount("/icons", StaticFiles(directory="public/icons"), name="icons")
 
 # Uncomment the line below to run the server
 # uvicorn.run(app, host="localhost", port=3001)
