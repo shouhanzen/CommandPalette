@@ -7,6 +7,9 @@ import src.cmd_interface as cmd_interface
 
 import uvicorn
 
+from src.spotify.core import router as spotify_router
+import src.spotify.core as spotify_core
+
 base_commands = CommandList(
     commands=[
         Command(
@@ -17,14 +20,17 @@ base_commands = CommandList(
     ]
 )
 
+contributors = [web_interface, spotify_core]
+
 
 def build_commands_list():
     out = CommandList()
     for command in base_commands.commands:
         out.commands.append(command)
 
-    for command in web_interface.get_commands():
-        out.commands.append(command)
+    for contributor in contributors:
+        for command in contributor.get_commands():
+            out.commands.append(command)
 
     # Assert that command titles are unique
     titles = []
@@ -70,6 +76,9 @@ def run_command(command: SerializableCommand):
 
     return {"message": "Command not found"}
 
+
+# Link in various routers
+app.include_router(spotify_router)
 
 # Uncomment the line below to run the server
 # uvicorn.run(app, host="localhost", port=3001)
