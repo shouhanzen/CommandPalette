@@ -92,85 +92,25 @@ ipcMain.on('minimize-app', () => {
 
 ipcMain.on('run-command', async (event, command) => {
 
-  // Hide the window
-  toggleWindow();
+  if (command.closes_palette === false) {
+    resetSearch();
+  }
+  else {
+    // Hide the window
+    toggleWindow();
+  }
 
   // Update the MRU list
   // Send the updated MRU list to the renderer
-  mru = cmdMRU.update_cmd_MRU(command);
+  let mru = cmdMRU.update_cmd_MRU(command);
   win.webContents.send('mru-change', mru);
 
-  // Check the issuer of the command
-  if (command.issuer === 'uvicorn') {
-    // If the issuer is uvicorn, post the command to the uvicorn server
-    try {
-      const response = await fetch('http://127.0.0.1:8000/run-command', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(command),
-      });
-      const result = await response.json();
-      console.log('Command result:', result);
-    } catch (err) {
-      console.error('Error running command:', err);
-    }
-  } else {
-    // If the issuer is not uvicorn, run the command here
-    console.log('Running command:', command);
-
-    // Run the command
-    // First, match the original command
-    original_cmd = commands.commands_data.find((cmd) => cmd.title === command.title);
-    console.log('Original command:', original_cmd);
-
-    if (original_cmd) {
-      // If the original command is found, run it
-      original_cmd.command(win);
-    } else {
-      // Raise exception
-      throw `Command not found: ${command.title}`;
-    }
-  }
+  commands.runCommand(command, win);
 });
 
 // Pings a series of command contributors
 ipcMain.handle('get-commands', async () => {
-  // Replace this with your actual commands data
-  let commands_data = [];
-  
-  // Strip out the commands from the commands data
-  for (command in commands.commands_data) {
-    let cmd = {... commands.commands_data[command]};
-    delete cmd['command'];
-    commands_data.push(cmd);
-  }
-
-  try {
-    // Also get commands from uvicorn server
-    const response = await fetch('http://127.0.0.1:8000/commands');
-    const python_commands = await response.json();
-    commands_data.push(...python_commands);
-  } catch (err) {
-    console.error(err);
-  }
-
-  // Check that commands all have unique titles
-  let titles = new Set();
-  for (command in commands_data) {
-    let title = commands_data[command].title;
-    if (titles.has(title)) {
-      console.error(`Duplicate command title: ${title}`);
-    }
-    titles.add(title);
-  }
-
-  return commands_data;
-});
-
-ipcMain.handle('retrieve-mru', () => {
-  return cmdMRU.mru;
+  return commands.get_commands();
 });
 
 function resetSearch(term) {

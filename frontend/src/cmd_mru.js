@@ -1,3 +1,5 @@
+const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
+
 let mru = []; // Most recently used commands, stores their titles
 const MRU_SIZE = 10;
 
@@ -17,6 +19,10 @@ function update_cmd_MRU(command) {
 
     return mru;
 }
+
+ipcMain.handle('retrieve-mru', () => {
+    return mru;
+  });
 
 module.exports.mru = mru;
 module.exports.MRU_SIZE = MRU_SIZE;
