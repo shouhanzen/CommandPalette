@@ -11,7 +11,7 @@ def open_url(url: str):
 
 def get_commands():
     # Load the websites from the JSON file
-    with open("src/websites.json", "r") as f:
+    with open("public/websites.json", "r") as f:
         websites = json.load(f)
 
     # Create a Command object for each website

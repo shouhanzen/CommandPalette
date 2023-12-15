@@ -9,13 +9,15 @@ from src.cmd_types import CommandList, Command
 router = APIRouter(prefix="/spotify")
 
 # Set up authentication
-sp_oauth = SpotifyOAuth(
-    client_id="01daafd66f6c494ebeeabd46619b1082",
-    client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
-    redirect_uri="http://127.0.0.1:51032/spotify/callback",
-    scope="user-modify-playback-state,user-read-playback-state",
-)
-sp = spotipy.Spotify(auth_manager=sp_oauth)
+# I think we need an oauth server for this to work...
+
+# sp_oauth = SpotifyOAuth(
+#     client_id="01daafd66f6c494ebeeabd46619b1082",
+#     client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
+#     redirect_uri="http://127.0.0.1:51032/spotify/callback",
+#     scope="user-modify-playback-state,user-read-playback-state",
+# )
+# sp = spotipy.Spotify(auth_manager=sp_oauth)
 
 
 def play_song(song_uri):

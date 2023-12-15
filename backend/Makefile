@@ -13,7 +13,7 @@ help:
 
 #---------------------------------------------------------------
 # Application Filename for EXE
-name=Application
+name=backend
 version=0p1
 FILENAME=$(name)_$(version)
 
@@ -33,7 +33,16 @@ venv:  ## make virtual environment (activate with  `source venv/Scripts/activate
 onefolder:
 onefolder:  ## make pyinstaller exe within folder of dependencies
 	$(PYINSTALLER) $(CLEAN) $(OUTPUT_NAME) $(ICON) $(EXTRA_HOOKS) $(MAIN_FILE)
+	cp -r public ./dist/$(FILENAME)/public
 
-onefile:
-onefile:  ## make pyinstaller exe bundling dependencies into one file
-	$(PYINSTALLER) $(CLEAN) $(OUTPUT_NAME) $(ICON) $(EXTRA_HOOKS) $(MAIN_FILE) $(ONEFILE) 
+# onefile:
+# onefile:  ## make pyinstaller exe bundling dependencies into one file
+# 	$(PYINSTALLER) $(CLEAN) $(OUTPUT_NAME) $(ICON) $(EXTRA_HOOKS) $(MAIN_FILE) $(ONEFILE) 
+# 	cp -r public ./dist/$(FILENAME)/public
+
+dev:
+	echo "Starting Uvicorn server..."
+
+	source secrets.sh
+	source .venv/Scripts/activate
+	uvicorn src.main:app --reload --port 8000

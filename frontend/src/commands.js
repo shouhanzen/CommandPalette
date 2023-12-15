@@ -31,10 +31,10 @@ const commands_data = [
 ];
 
 const command_issuers = [
-  {
-    name: "uvicorn",
-    url: "http://127.0.0.1:8000",
-  },
+  // {
+  //   name: "uvicorn",
+  //   url: "http://127.0.0.1:8000",
+  // },
 ]
 
 async function get_commands() {
@@ -72,8 +72,6 @@ async function get_commands() {
         }
         titles.add(title);
     }
-
-    console.log("Commands:", commands_temp);
 
     return commands_temp;
 }
@@ -151,7 +149,13 @@ async function runCommand(command, win, app) {
   }
 }
 
+function add_issuer(issuer) {
+  command_issuers.push(issuer);
+}
+
 // export default commands_data;
 module.exports.commands_data = commands_data;
 module.exports.get_commands = get_commands;
 module.exports.runCommand = runCommand;
+module.exports.command_issuers = command_issuers;
+module.exports.add_issuer = add_issuer;

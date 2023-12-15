@@ -4,6 +4,9 @@ const path = require('path');
 const commands = require('./commands');
 const cmdMRU = require('./cmd_mru');
 
+const portfinder = require('portfinder');
+const { exec } = require('child_process');
+
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
 const SHORTCUT = 'Ctrl+Shift+Alt+P';
@@ -32,10 +35,9 @@ function createWindow() {
   const startUrl = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
 
   // Start python backend
-  if (!isDev) {
-    console.log('Starting backend process');
-    backendProcess = spawn('backend.exe');
-  }
+  // if (!isDev) {
+    startBackend();
+  // }
 
   win.loadURL(startUrl);
   win.on('closed', () => win = null);
@@ -45,6 +47,62 @@ function createWindow() {
 
   // Maximize the window to take up the whole screen
   win.maximize();
+}
+
+function startBackend() {
+  portfinder.getPort((err, port) => {
+    if (err) {
+      console.error("Error finding open port:", err);
+      return;
+    }
+
+    console.log("Found open port:", port);
+
+    // Get the current working directory
+    const cwd = process.cwd();
+
+    // Construct the full path to the executable
+    const backendPath = `${cwd}\\backend_0p1\\backend_0p1.exe`; // Use double backslashes for Windows paths
+
+    const command = `${backendPath} --port ${port}`;
+
+    backendProcess = exec(command, { cwd: `${cwd}\\backend_0p1` });
+
+    backendProcess.on('error', (error) => {
+      console.error("Failed to start child process:", error);
+    });
+
+    backendProcess.stdout.on('data', (data) => {
+      console.log('Output:', data);
+    });
+
+    backendProcess.stderr.on('data', (data) => {
+      console.error('Error:', data);
+    });
+
+    backendProcess.on('close', (code) => {
+      console.log(`Child process exited with code ${code}`);
+    });
+
+    const killChildProcess = () => {
+      console.log("Terminating child process...");
+      process.kill(-child.pid); // Kill the entire process group
+      process.exit();
+    };
+
+    // Handle various exit scenarios
+    process.on('exit', killChildProcess);
+    process.on('SIGINT', killChildProcess); // CTRL+C
+    process.on('SIGTERM', killChildProcess); // Termination request
+    process.on('uncaughtException', killChildProcess);
+    process.on('unhandledRejection', killChildProcess);
+
+    // Add backend as issuer
+    commands.add_issuer({
+      name: "Backend",
+      url: `http://127.0.0.1:${port}`,
+    });
+  });
 }
 
 function toggleWindow() {
@@ -95,7 +153,8 @@ app.on('activate', () => {
 
 app.on('will-quit', () => {
   // Terminate the backend process when the app is about to close
-  backendProcess.kill();
+  // console.log("Terminating backend process");
+  // backendProcess.kill();
 });
 
 ipcMain.on('minimize-app', () => {
