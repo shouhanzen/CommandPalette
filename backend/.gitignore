@@ -1,2 +1,6 @@
 .venv
 secrets.sh
+build
+dist
+*.spec
+*.egg-info

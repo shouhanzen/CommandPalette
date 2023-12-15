@@ -7,6 +7,8 @@ const cmdMRU = require('./cmd_mru');
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
 const SHORTCUT = 'Ctrl+Shift+Alt+P';
+let backendProcess = null;
+
 
 function createWindow() {
   // Create the browser window.
@@ -28,6 +30,12 @@ function createWindow() {
 
   // Load next js app
   const startUrl = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
+
+  // Start python backend
+  if (!isDev) {
+    console.log('Starting backend process');
+    backendProcess = spawn('backend.exe');
+  }
 
   win.loadURL(startUrl);
   win.on('closed', () => win = null);
@@ -83,6 +91,11 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
+});
+
+app.on('will-quit', () => {
+  // Terminate the backend process when the app is about to close
+  backendProcess.kill();
 });
 
 ipcMain.on('minimize-app', () => {

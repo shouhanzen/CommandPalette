@@ -1,5 +1,5 @@
 import webbrowser
-from src.types import *
+from src.cmd_types import *
 import json
 
 

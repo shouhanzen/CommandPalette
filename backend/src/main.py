@@ -1,12 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from src.types import *
+from src.cmd_types import *
 
 import src.web_interface as web_interface
 import src.cmd_interface as cmd_interface
 
 import uvicorn
+import subprocess
+import socket
 
 from src.spotify.core import router as spotify_router
 import src.spotify.core as spotify_core

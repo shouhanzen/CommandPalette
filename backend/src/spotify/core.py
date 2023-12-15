@@ -3,7 +3,7 @@ import os
 from spotipy.oauth2 import SpotifyOAuth
 from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
-from src.types import CommandList, Command
+from src.cmd_types import CommandList, Command
 
 
 router = APIRouter(prefix="/spotify")

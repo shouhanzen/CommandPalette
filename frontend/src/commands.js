@@ -59,34 +59,8 @@ async function get_commands() {
 
     // Retrieve commands from each issuer
     for (issuer in command_issuers) {
-        try {
-            const response = await fetch(command_issuers[issuer].url + "/commands");
-            // Check if the response is valid
-            if (!response.ok) {
-                throw `Error retrieving commands from ${issuer.name}: ${response.status} ${response.statusText}`;
-            }
-
-            const commands = await response.json();
-
-            for (c_ind in commands) {
-                command = commands[c_ind];
-                command.issuer = command_issuers[issuer].name;
-
-                if (!("icon" in command))
-                {
-
-                }
-                else if (command.icon === "")
-                  delete command.icon;
-                else {
-                  command.icon = command_issuers[issuer].url + command.icon;
-                }
-            }
-
-            commands_temp.push(...commands);
-        } catch (err) {
-            console.error(err);
-        }
+      const issuer_data = command_issuers[issuer];
+      await commandsFromIssuer(issuer_data, commands_temp);
     }
 
     // Check that commands all have unique titles
@@ -102,6 +76,35 @@ async function get_commands() {
     console.log("Commands:", commands_temp);
 
     return commands_temp;
+}
+
+async function commandsFromIssuer(issuer_data, commands_temp) {
+  try {
+    const response = await fetch(issuer_data.url + "/commands");
+    // Check if the response is valid
+    if (!response.ok) {
+      throw `Error retrieving commands from ${issuer_data.name}: ${response.status} ${response.statusText}`;
+    }
+
+    const commands = await response.json();
+
+    for (c_ind in commands) {
+      command = commands[c_ind];
+      command.issuer = issuer_data.name;
+
+      if (!("icon" in command)) {
+      }
+      else if (command.icon === "")
+        delete command.icon;
+      else {
+        command.icon = issuer_data.url + command.icon;
+      }
+    }
+
+    commands_temp.push(...commands);
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 async function runCommand(command, win, app) {
