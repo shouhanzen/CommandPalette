@@ -5,23 +5,28 @@
     },
     {
         "title": "webreg",
-        "url": "https://act.ucsd.edu/webreg2"
+        "url": "https://act.ucsd.edu/webreg2",
+        "icon": "/icons/ucsd.png"
     },
     {
         "title": "VAC UCSD",
-        "url": "https://vac.ucsd.edu"
+        "url": "https://vac.ucsd.edu",
+        "icon": "/icons/ucsd.png"
     },
     {
         "title": "Degree Planner",
-        "url": "https://degree-planner.ucsd.edu"
+        "url": "https://degree-planner.ucsd.edu",
+        "icon": "/icons/ucsd.png"
     },
     {
         "title": "Degree Audit",
-        "url": "https://act.ucsd.edu/studentDars/select"
+        "url": "https://act.ucsd.edu/studentDars/select",
+        "icon": "/icons/ucsd.png"
     },
     {
         "title": "TritonLink",
-        "url": "http://mytritonlink.ucsd.edu/"
+        "url": "http://mytritonlink.ucsd.edu/",
+        "icon": "/icons/ucsd.png"
     },
     {
         "title": "ITS Pro: Timesheet",

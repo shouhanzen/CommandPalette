@@ -24,11 +24,18 @@ def get_commands():
         except KeyError:
             pass
 
+        icon = ""
+        try:
+            icon = website["icon"]
+        except KeyError:
+            pass
+
         commands.append(
             Command(
                 title=website["title"],
                 description=description,
                 command=lambda url=website["url"]: open_url(url),
+                icon=icon,
             )
         )
 
