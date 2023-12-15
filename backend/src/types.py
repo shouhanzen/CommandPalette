@@ -7,12 +7,16 @@ class Command(BaseModel):
     description: str
     issuer: str = "uvicorn"
     command: Callable = None
+    tags: List[str] = []
+    closes_palette: bool = True
 
 
 class SerializableCommand(BaseModel):
     title: str
     description: str
     issuer: str = "uvicorn"
+    tags: List[str] = []
+    closes_palette: bool = True
 
 
 class CommandList:
