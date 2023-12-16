@@ -1,5 +1,6 @@
 const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 const isDev = require('electron-is-dev');
+const serve = require("electron-serve");
 const path = require('path');
 const commands = require('./commands');
 const cmdMRU = require('./cmd_mru');
@@ -12,8 +13,12 @@ let win;
 const SHORTCUT = 'Ctrl+Shift+Alt+P';
 let backendProcess = null;
 
+const appServe = app.isPackaged ? serve({
+  directory: path.join(__dirname, "out")
+}) : null;
 
 function createWindow() {
+  
   // Create the browser window.
   win = new BrowserWindow({
     // width: 800,
@@ -23,10 +28,10 @@ function createWindow() {
     frame: false, // Make the window frameless
     transparent: true, // Make the window transparent
     resizable: false, // Disable resizing of the window
-    show: false, // Initially hide the window
+    // show: false, // Initially hide the window
 
     webPreferences: {
-      preload: path.join(__dirname, '../public/preload.js'),
+      preload: path.join(__dirname, 'preload.js'),
       // other options
     },
   });
