@@ -31,15 +31,33 @@ function createWindow() {
     },
   });
 
+  // https://medium.com/@rbfraphael/building-desktop-apps-with-electron-next-js-without-nextron-01bbf1fdd72e
+  if (app.isPackaged) {
+    appServe(win).then(() => {
+      win.loadURL("app://-");
+    });
+  } else {
+    win.loadURL("http://localhost:3000");
+    win.webContents.openDevTools();
+    win.webContents.on("did-fail-load", (e, code, desc) => {
+      console.log("Failed to load app:", code, desc);
+
+      win.webContents.reloadIgnoringCache();
+    });
+  }
+
   // Load next js app
-  const startUrl = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
+  // const startUrl = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
+  // const startUrl = `file://${path.join(__dirname, '../out/index.html')}`;
+
+  // console.log("Start URL:", startUrl);
 
   // Start python backend
   // if (!isDev) {
     startBackend();
   // }
 
-  win.loadURL(startUrl);
+  // win.loadURL(startUrl);
   win.on('closed', () => win = null);
   win.on('blur', () => {
     win.hide();

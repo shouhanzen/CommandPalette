@@ -1,0 +1,12 @@
+appId: "io.github.shouhanzen.palette"
+productName: "Palette"
+copyright: "Copyright (c) 2023 shouhanzen"
+win:
+  target: ["dir", "portable", "zip"]
+  # icon: "public/ucsd.png"
+linux:
+  target: ["dir", "appimage", "zip"]
+  # icon: "public/ucsd.png"
+mac:
+  target: ["dir", "dmg", "zip"]
+  # icon: "public/ucsd.png"
