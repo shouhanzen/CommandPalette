@@ -1,12 +1,22 @@
 const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 const isDev = require('electron-is-dev');
 const serve = require("electron-serve");
+const log = require('electron-log');
 const path = require('path');
 const commands = require('./commands');
 const cmdMRU = require('./cmd_mru');
 
 const portfinder = require('portfinder');
 const { exec, spawn, execFile } = require('child_process');
+
+// Set log level
+log.initialize({ preload: true });
+log.level = 'info';
+
+// In the main process, catch all unhandled errors and log them
+process.on('uncaughtException', (error) => {
+  log.error(`Unhandled Exception: ${error}`);
+});
 
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
@@ -21,10 +31,6 @@ function createWindow() {
   
   // Create the browser window.
   win = new BrowserWindow({
-    // width: 800,
-    // height: 600,
-    // show: false, // Initially hide the window
-
     frame: false, // Make the window frameless
     transparent: true, // Make the window transparent
     resizable: false, // Disable resizing of the window
@@ -32,7 +38,6 @@ function createWindow() {
 
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      // other options
     },
   });
 
@@ -61,25 +66,31 @@ function createWindow() {
   win.on('blur', () => {
     win.hide();
   });
+  win.onerror = (error) => {
+    log.error(`Window error: ${error}`);
+  }
+
+  // log.warn('This is a warning message');
+  // log.error('This is an error message');
 
   // Maximize the window to take up the whole screen
   win.maximize();
 }
 
 function startBackend() {
+  log.info("Starting backend");
+
   portfinder.getPort((err, port) => {
     if (err) {
       console.error("Error finding open port:", err);
       return;
     }
 
-    console.log("Found open port:", port);
-
-    // Get the current working directory
-    const cwd = process.cwd();
-
     // Construct the full path to the executable
-    const backendPath = `${cwd}\\backend\\backend_0p1.exe`; // Use double backslashes for Windows paths
+    log.info(app.getAppPath());
+
+    let root = path.join(app.getAppPath(), "..", "..");
+    const backendPath = path.join(root, "backend", "backend_0p1.exe"); // Use double backslashes for Windows paths
 
     // const command = `${backendPath} --port ${port}`;
 
@@ -89,47 +100,22 @@ function startBackend() {
     const args = ['--port', port.toString()];
 
     // Define the options, including the working directory
-    const options = { cwd: `${cwd}\\backend` };
+    const options = { cwd: path.join(root, "backend") };
 
     // Use execFile to run the backend executable
     execFile(backendExecutable, args, options, (error, stdout, stderr) => {
       if (error) {
-        console.error(`execFile error: ${error}`);
+        log.error(`execFile error: ${error}`);
         return;
       }
-      console.log(`stdout: ${stdout}`);
+      log.info(`stdout: ${stdout}`);
       if (stderr) {
-        console.error(`stderr: ${stderr}`);
+        log.error(`stderr: ${stderr}`);
       }
     });
 
-    // const child = spawn(backendPath, ['--port', port.toString()], { cwd: `${cwd}\\backend` });
-
-    // child.stdout.on('data', (data) => {
-    //   console.log(`Backend stdout: ${data}`);
-    // });
-
-    // child.stderr.on('data', (data) => {
-    //   console.error(`Backend stderr: ${data}`);
-    // });
-
-    // child.on('close', (code) => {
-    //   console.log(`Child process exited with code ${code}`);
-    // });
-
-    // const killChildProcess = () => {
-    //   console.log("Terminating child process...");
-    //   process.kill(-child.pid); // Kill the entire process group
-    //   process.exit();
-    // };
-
-    // // Handle various exit scenarios
-    // process.on('exit', killChildProcess);
-    // process.on('SIGINT', killChildProcess); // CTRL+C
-    // process.on('SIGTERM', killChildProcess); // Termination request
-    // process.on('uncaughtException', killChildProcess);
-    // process.on('unhandledRejection', killChildProcess);
-
+    log.info(`Backend started on port ${port}`);
+    log.info(`Backend path: ${backendPath}`)
 
     // Add backend as issuer
     commands.add_issuer({
