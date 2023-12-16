@@ -5,7 +5,7 @@ const commands = require('./commands');
 const cmdMRU = require('./cmd_mru');
 
 const portfinder = require('portfinder');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
@@ -64,38 +64,36 @@ function startBackend() {
     // Construct the full path to the executable
     const backendPath = `${cwd}\\backend_0p1\\backend_0p1.exe`; // Use double backslashes for Windows paths
 
-    const command = `${backendPath} --port ${port}`;
+    // const command = `${backendPath} --port ${port}`;
 
-    backendProcess = exec(command, { cwd: `${cwd}\\backend_0p1` });
+    // Use spawn instead of exec
+    const child = spawn(backendPath, ['--port', port.toString()], { cwd: `${cwd}\\backend_0p1` });
 
-    backendProcess.on('error', (error) => {
-      console.error("Failed to start child process:", error);
+    child.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`);
     });
 
-    backendProcess.stdout.on('data', (data) => {
-      console.log('Output:', data);
+    child.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
     });
 
-    backendProcess.stderr.on('data', (data) => {
-      console.error('Error:', data);
-    });
-
-    backendProcess.on('close', (code) => {
+    child.on('close', (code) => {
       console.log(`Child process exited with code ${code}`);
     });
 
-    const killChildProcess = () => {
-      console.log("Terminating child process...");
-      process.kill(-child.pid); // Kill the entire process group
-      process.exit();
-    };
+    // const killChildProcess = () => {
+    //   console.log("Terminating child process...");
+    //   process.kill(-child.pid); // Kill the entire process group
+    //   process.exit();
+    // };
 
-    // Handle various exit scenarios
-    process.on('exit', killChildProcess);
-    process.on('SIGINT', killChildProcess); // CTRL+C
-    process.on('SIGTERM', killChildProcess); // Termination request
-    process.on('uncaughtException', killChildProcess);
-    process.on('unhandledRejection', killChildProcess);
+    // // Handle various exit scenarios
+    // process.on('exit', killChildProcess);
+    // process.on('SIGINT', killChildProcess); // CTRL+C
+    // process.on('SIGTERM', killChildProcess); // Termination request
+    // process.on('uncaughtException', killChildProcess);
+    // process.on('unhandledRejection', killChildProcess);
+
 
     // Add backend as issuer
     commands.add_issuer({
