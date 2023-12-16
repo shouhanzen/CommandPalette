@@ -6,7 +6,7 @@ const commands = require('./commands');
 const cmdMRU = require('./cmd_mru');
 
 const portfinder = require('portfinder');
-const { exec, spawn } = require('child_process');
+const { exec, spawn, execFile } = require('child_process');
 
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
@@ -14,7 +14,7 @@ const SHORTCUT = 'Ctrl+Shift+Alt+P';
 let backendProcess = null;
 
 const appServe = app.isPackaged ? serve({
-  directory: path.join(__dirname, "out")
+  directory: path.join(__dirname, "../out")
 }) : null;
 
 function createWindow() {
@@ -51,16 +51,10 @@ function createWindow() {
     });
   }
 
-  // Load next js app
-  // const startUrl = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
-  // const startUrl = `file://${path.join(__dirname, '../out/index.html')}`;
-
-  // console.log("Start URL:", startUrl);
-
   // Start python backend
-  // if (!isDev) {
+  if (app.isPackaged) {
     startBackend();
-  // }
+  }
 
   // win.loadURL(startUrl);
   win.on('closed', () => win = null);
@@ -85,24 +79,43 @@ function startBackend() {
     const cwd = process.cwd();
 
     // Construct the full path to the executable
-    const backendPath = `${cwd}\\backend_0p1\\backend_0p1.exe`; // Use double backslashes for Windows paths
+    const backendPath = `${cwd}\\backend\\backend_0p1.exe`; // Use double backslashes for Windows paths
 
     // const command = `${backendPath} --port ${port}`;
 
-    // Use spawn instead of exec
-    const child = spawn(backendPath, ['--port', port.toString()], { cwd: `${cwd}\\backend_0p1` });
+    // Use execFile
+    // Define the backend executable and the arguments
+    const backendExecutable = backendPath; // Make sure this is just the executable name or path
+    const args = ['--port', port.toString()];
 
-    child.stdout.on('data', (data) => {
-      console.log(`Backend stdout: ${data}`);
+    // Define the options, including the working directory
+    const options = { cwd: `${cwd}\\backend` };
+
+    // Use execFile to run the backend executable
+    execFile(backendExecutable, args, options, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`execFile error: ${error}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+      if (stderr) {
+        console.error(`stderr: ${stderr}`);
+      }
     });
 
-    child.stderr.on('data', (data) => {
-      console.error(`Backend stderr: ${data}`);
-    });
+    // const child = spawn(backendPath, ['--port', port.toString()], { cwd: `${cwd}\\backend` });
 
-    child.on('close', (code) => {
-      console.log(`Child process exited with code ${code}`);
-    });
+    // child.stdout.on('data', (data) => {
+    //   console.log(`Backend stdout: ${data}`);
+    // });
+
+    // child.stderr.on('data', (data) => {
+    //   console.error(`Backend stderr: ${data}`);
+    // });
+
+    // child.on('close', (code) => {
+    //   console.log(`Child process exited with code ${code}`);
+    // });
 
     // const killChildProcess = () => {
     //   console.log("Terminating child process...");

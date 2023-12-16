@@ -11,5 +11,4 @@ cd ..
 rm -rf dist
 mkdir dist
 cp -r backend/dist/backend* dist/backend
-cp -r frontend/out dist/out
 cp -r frontend/dist/Palette*.exe dist/Palette.exe
