@@ -70,11 +70,11 @@ function startBackend() {
     const child = spawn(backendPath, ['--port', port.toString()], { cwd: `${cwd}\\backend_0p1` });
 
     child.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
+      console.log(`Backend stdout: ${data}`);
     });
 
     child.stderr.on('data', (data) => {
-      console.error(`stderr: ${data}`);
+      console.error(`Backend stderr: ${data}`);
     });
 
     child.on('close', (code) => {

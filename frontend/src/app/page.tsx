@@ -11,30 +11,40 @@ interface Command {
 const CommandPalette = () => {
   const [commands, setCommands] = useState([] as Command[]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [searchBarFocused, setSearchBarFocused] = useState(false);
   const searchRef = useRef(null);
 
   const [lastUsedList, setLastUsedList] = useState([]);
 
+  function setErrorGuarded(err: unknown) {
+    if (err instanceof Error) {
+      // Now TypeScript knows that 'err' is of type Error
+      setError(err.message);
+    } else {
+      // Handle cases where 'err' is not an Error object
+      setError("An unknown error occurred");
+    }
+  }
+
   const fetchCommands = async () => {
     try {
       const commands = await window.electron.invoke("get-commands", {});
       console.log("Commands fetched: ", commands);
-      setCommands(commands);
+      setCommands(commands as Command[]);
     } catch (err) {
-      setError(err);
+      setErrorGuarded(err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const runCommand = async (command) => {
+  const runCommand = async (command: string) => {
     try {
       await window.electron.runCommand(command);
     } catch (err) {
-      setError(err);
+      setErrorGuarded(err);
     }
   };
 
