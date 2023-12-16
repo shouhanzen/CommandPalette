@@ -2,21 +2,15 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
-interface Command {
-  title: string;
-  description: string;
-  tags: string[];
-}
-
 const CommandPalette = () => {
   const [commands, setCommands] = useState([] as Command[]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [searchBarFocused, setSearchBarFocused] = useState(false);
-  const searchRef = useRef(null);
+  const searchRef = useRef(null as HTMLInputElement | null);
 
-  const [lastUsedList, setLastUsedList] = useState([]);
+  const [lastUsedList, setLastUsedList] = useState([] as string[]);
 
   function setErrorGuarded(err: unknown) {
     if (err instanceof Error) {
@@ -40,7 +34,7 @@ const CommandPalette = () => {
     }
   };
 
-  const runCommand = async (command: string) => {
+  const runCommand = async (command: Command) => {
     try {
       await window.electron.runCommand(command);
     } catch (err) {
@@ -60,7 +54,7 @@ const CommandPalette = () => {
       setLastUsedList(mru);
     });
 
-    window.electron.onMRUChange((event, mru) => {
+    window.electron.onMRUChange((event: Event, mru: string[]) => {
       console.log("MRU changed: ", mru);
 
       setLastUsedList(mru);
@@ -99,7 +93,7 @@ const CommandPalette = () => {
   }, []);
 
   useEffect(() => {
-    window.electron.resetSearch((event) => {
+    window.electron.resetSearch((event: Event) => {
       // Handle the new search term here
       setSearchTerm("");
 
@@ -111,7 +105,7 @@ const CommandPalette = () => {
   }, []);
 
   if (isLoading) return <div className="loading-message">Loading...</div>;
-  if (error) return <div className="error-message">Error: {error.message}</div>;
+  if (error) return <div className="error-message">Error: {error}</div>;
 
   const filteredCommands = commands.filter((command) => {
     let numInPool = getTermOverlap(searchTerm, command);
@@ -148,7 +142,11 @@ const CommandPalette = () => {
             // If shift tab and search bar is focused, focus the first element in the list
             if (event.shiftKey && event.key === "Tab") {
               event.preventDefault();
-              document.getElementsByClassName("command-list-item")[0].focus();
+              const firstElement =
+                document.getElementsByClassName("command-list-item")[0];
+              if (firstElement instanceof HTMLElement) {
+                firstElement.focus();
+              }
             }
           }}
           onBlur={() => {
@@ -220,7 +218,7 @@ function getTermOverlap(searchTerm: string, command: Command) {
 }
 
 function compareCommands(
-  lastUsedList: never[],
+  lastUsedList: string[],
   searchTerm: string
 ): ((a: Command, b: Command) => number) | undefined {
   return (a, b) => {
