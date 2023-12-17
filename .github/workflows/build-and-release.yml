@@ -23,6 +23,11 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Install python packages natively
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
       - name: Build project
         run: make build
 
