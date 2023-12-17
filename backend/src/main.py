@@ -14,6 +14,10 @@ import signal
 from src.spotify.core import router as spotify_router
 import src.spotify.core as spotify_core
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
 base_commands = CommandList(
     commands=[
         Command(

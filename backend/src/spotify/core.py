@@ -5,6 +5,8 @@ from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
 from src.cmd_types import CommandList, Command
 
+import logging
+
 
 router = APIRouter(prefix="/spotify")
 
@@ -13,7 +15,7 @@ router = APIRouter(prefix="/spotify")
 
 sp_oauth = SpotifyPKCE(
     client_id="01daafd66f6c494ebeeabd46619b1082",
-    redirect_uri="http://127.0.0.1:51032/spotify/callback",
+    redirect_uri="http://127.0.0.1:51932/spotify/callback",
     scope="user-modify-playback-state,user-read-playback-state",
 )
 sp = spotipy.Spotify(auth_manager=sp_oauth)
@@ -46,11 +48,11 @@ def shuffle_playback(state=True):
 
 def get_commands():
     commands = [
-        Command(
-            title="Spotify: Play Song",
-            description="Play a song by its URI",
-            command=play_song,
-        ),
+        # Command(
+        #     title="Spotify: Play Song",
+        #     description="Play a song by its URI",
+        #     command=play_song,
+        # ),
         Command(
             title="Spotify: Stop Song",
             description="Stop the current song",
