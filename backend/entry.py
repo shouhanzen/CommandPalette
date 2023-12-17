@@ -1,3 +1,6 @@
+import contextlib
+import time
+import threading
 import uvicorn
 import subprocess
 import socket
@@ -7,6 +10,7 @@ import logging
 import argparse
 
 import multiprocessing
+
 from src.main import app
 
 logging.basicConfig(
@@ -32,7 +36,24 @@ def is_port_in_use(port):
             return True
 
 
-def run_server(port=51326, reload=False):
+class Server(uvicorn.Server):
+    def install_signal_handlers(self):
+        pass
+
+    @contextlib.contextmanager
+    def run_in_thread(self):
+        thread = threading.Thread(target=self.run)
+        thread.start()
+        try:
+            while not self.started:
+                time.sleep(1e-3)
+            yield
+        finally:
+            self.should_exit = True
+            thread.join()
+
+
+def run_server(port, reload):
     # If the port is taken
     if is_port_in_use(port):
         # Find a free port
@@ -40,13 +61,15 @@ def run_server(port=51326, reload=False):
 
     logging.info(f"Starting server on port {port}")
 
-    uvicorn.run(
-        app,
+    config = uvicorn.Config(
+        app=app,
         host="127.0.0.1",
         port=port,
         log_level="debug",
-        # reload=True,
+        reload=reload,
     )
+    server = uvicorn.Server(config=config)
+    server.run()
 
 
 if __name__ == "__main__":
@@ -59,6 +82,12 @@ if __name__ == "__main__":
         help="Set to True to enable server reloading",
     )
     args = parser.parse_args()
+
+    if args.port is None:
+        args.port = 0
+
+    if args.reload is None:
+        args.reload = False
 
     os.environ["SPOTIFY_CLIENT_SECRET"] = "0379541199f84282a275faeed8e2a1d5"
     run_server(args.port, args.reload)

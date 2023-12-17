@@ -4,8 +4,10 @@ interface Window {
         minimizeApp: () => void;
         runCommand: (command: Command) => void;
         resetSearch: (func: Function) => void;
+        onNewCommands: (func: Function) => void;
         retrieveMRU: () => Promise<any>;
         onMRUChange: (func: Function) => void;
+        
         // Define other methods or properties you need`
     };
 }

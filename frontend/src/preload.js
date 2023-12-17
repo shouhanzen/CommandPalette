@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electron', {
   invoke: (channel, data) => ipcRenderer.invoke(channel, data),
   
   resetSearch: (func) => ipcRenderer.on('reset-search', func),
+  onNewCommands: (func) => ipcRenderer.on('new-commands', func),
 
   retrieveMRU: () => ipcRenderer.invoke('retrieve-mru'),
   onMRUChange: (func) => ipcRenderer.on('mru-change', func),

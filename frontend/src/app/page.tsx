@@ -102,6 +102,11 @@ const CommandPalette = () => {
         searchRef.current.focus();
       }
     });
+
+    window.electron.onNewCommands((event: Event, commands: Command[]) => {
+      console.log("New commands: ", commands);
+      setCommands(commands);
+    });
   }, []);
 
   if (isLoading) return <div className="loading-message">Loading...</div>;

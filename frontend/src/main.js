@@ -57,7 +57,7 @@ function createWindow() {
   }
 
   // Start python backend
-  startBackend();
+  tryStartBackend(win);
 
   // win.loadURL(startUrl);
   win.on('closed', () => win = null);
@@ -72,30 +72,31 @@ function createWindow() {
   win.maximize();
 }
 
-function startBackend() {
+function tryStartBackend(win) {
   log.info("Starting backend");
 
-  portfinder.getPort((err, port) => {
-    if (err) {
-      console.error("Error finding open port:", err);
-      return;
-    }
+  let portUsed = 8000;
 
-    // Construct the full path to the executable
-    log.info(app.getAppPath());
-    let backendPath = "";
+  if (app.isPackaged) {
 
-    if (app.isPackaged) {
+    portfinder.getPort(async (err, port) => {
+      if (err) {
+        console.error("Error finding open port:", err);
+        return;
+      }
+      portUsed = port;
+
+      // Construct the full path to the executable
+      log.info(app.getAppPath());
+      let backendPath = "";
 
       let root = path.join(app.getAppPath(), "..", "..");
       backendPath = path.join(root, "backend", "backend_0p1.exe"); // Use double backslashes for Windows paths
 
-      // const command = `${backendPath} --port ${port}`;
-
       // Use execFile
       // Define the backend executable and the arguments
       const backendExecutable = backendPath; // Make sure this is just the executable name or path
-      const args = ['--port', port.toString()];
+      const args = ['--port', portUsed.toString()];
 
       // Define the options, including the working directory
       const options = { cwd: path.join(root, "backend") };
@@ -111,40 +112,44 @@ function startBackend() {
           log.error(`stderr: ${stderr}`);
         }
       });
-    }
 
-    // We are in dev mode, use spawn
-    else {
-      const root = path.join(app.getAppPath(), "..", "backend");
-      backendPath = path.join(root, "entry.py"); // Use double backslashes for Windows paths
-      const command = `python ${backendPath} --port ${port} --reload true`;
+      log.info(`Backend path: ${backendPath}`)
 
-      // Use spawn to run the backend executable
-      backendProcess = spawn(command, { shell: true, cwd: root  });
+    })
+  }
 
-      // Log the stdout and stderr
-      backendProcess.stdout.on('data', (data) => {
-        log.info(`stdout: ${data}`);
-      });
+  // We are in dev mode, use spawn
+  else {
+    // Yeah I can't figure this out
+    log.debug("INFO: Running in dev mode, please spawn uvicorn server manually")
 
-      backendProcess.stderr.on('data', (data) => {
-        log.error(`stderr: ${data}`);
-      });
+    // const root = path.join(app.getAppPath(), "..", "backend");
+    // backendPath = path.join(root, "entry.py"); // Use double backslashes for Windows paths
+    // const command = `uvicorn`
+    // const args = [`src.main:app`, `--port`, port, `--reload`];
 
-      backendProcess.on('close', (code) => {
-        log.info(`Backend process exited with code ${code}`);
-      });
-    }
-    
-    log.info(`Backend started on port ${port}`);
-    log.info(`Backend path: ${backendPath}`)
+    // // Use spawn to run the backend executable
+    // backendProcess = spawn(command, args, { shell: true, cwd: root  });
 
-    // Add backend as issuer
-    commands.add_issuer({
-      name: "Backend",
-      url: `http://127.0.0.1:${port}`,
-    });
-  });
+    // // Log the stdout and stderr
+    // backendProcess.stdout.on('data', (data) => {
+    //   log.info(`stdout: ${data}`);
+    // });
+
+    // backendProcess.stderr.on('data', (data) => {
+    //   log.error(`stderr: ${data}`);
+    // });
+
+    // backendProcess.on('close', (code) => {
+    //   log.info(`Backend process exited with code ${code}`);
+    // });
+  }
+
+  // Add backend as issuer
+  commands.register_issuer({
+    name: "Backend",
+    url: `http://127.0.0.1:${portUsed}`,
+  }, win);
 }
 
 function toggleWindow() {
@@ -193,10 +198,24 @@ app.on('activate', () => {
   }
 });
 
-app.on('will-quit', () => {
+app.on('quit', () => {
   // Terminate the backend process when the app is about to close
-  log.info("Terminating backend process");
-  backendProcess.kill();
+  log.info("Sending client quit signal to backends");
+  for (const issuer of commands.get_issuers()) {
+    endpoint = path.join(issuer.url, 'quit');
+    log.info(`Sending quit signal to ${endpoint}`);
+    fetch(endpoint, { method: 'POST' })
+      .then(response => response.text())
+      .then(text => log.info(text))
+      .catch(error => log.error(error));
+  }
+
+  // Kill the backend process
+  // if (backendProcess) {
+  //   log.info("Killing backend process");
+  //   log.info("Backend process PID: " + backendProcess.pid);
+  //   backendProcess.kill();
+  // }
 });
 
 ipcMain.on('minimize-app', () => {

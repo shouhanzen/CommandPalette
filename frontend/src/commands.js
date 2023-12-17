@@ -1,3 +1,7 @@
+const path = require('path');
+const log = require('electron-log');
+
+
 const cmdMRU = require("./cmd_mru.js");
 
 function clear_cmd_MRU(win, app) {
@@ -36,6 +40,10 @@ const command_issuers = [
   //   url: "http://127.0.0.1:8000",
   // },
 ]
+
+function get_issuers() {
+  return command_issuers;
+}
 
 async function get_commands() {
     // Strip out the commands from the commands data
@@ -149,8 +157,31 @@ async function runCommand(command, win, app) {
   }
 }
 
-function add_issuer(issuer) {
+async function register_issuer(issuer, win) {
+
+  while (true) {
+    try {
+      const response = await fetch(path.join(issuer.url, 'health'));
+      if (response.status === 200) {
+        log.info("Backend started/detected successfully");
+        break; // Exit the loop if the server is up
+      } else {
+        log.error("Backend failed to start");
+      }
+    } catch (error) {
+      log.debug("Waiting for backend to start: " + error.message);
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+  }
+  log.info(`Backend started/detected on url ${issuer.url}`);
+
+  // Add the issuer to the list of issuers
   command_issuers.push(issuer);
+  
+  // Get new commands and upsert
+  new_commands = await get_commands();
+  log.debug("New commands: " + new_commands);
+  win.webContents.send('new-commands', new_commands);
 }
 
 // export default commands_data;
@@ -158,4 +189,5 @@ module.exports.commands_data = commands_data;
 module.exports.get_commands = get_commands;
 module.exports.runCommand = runCommand;
 module.exports.command_issuers = command_issuers;
-module.exports.add_issuer = add_issuer;
+module.exports.register_issuer = register_issuer;
+module.exports.get_issuers = get_issuers;

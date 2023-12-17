@@ -39,7 +39,7 @@
   "build": {
     "extraFiles": [
       {
-        "from": "./backend",
+        "from": "../backend/dist/backend_0p1",
         "to": "./backend"
       }
     ]

@@ -9,6 +9,7 @@ import src.cmd_interface as cmd_interface
 import uvicorn
 import subprocess
 import socket
+import signal
 
 from src.spotify.core import router as spotify_router
 import src.spotify.core as spotify_core
@@ -78,6 +79,29 @@ def run_command(command: SerializableCommand):
             return {"message": "Command executed successfully"}
 
     return {"message": "Command not found"}
+
+
+@app.post("/quit")
+def quit():
+    print("Quit signal received")
+
+
+@app.get("/health")
+def health():
+    return "OK"
+
+
+# def signal_handler(signum, frame):
+#     # Perform necessary cleanup tasks
+#     print(f"Received signal {signum}, shutting down.")
+#     # Here you would add your cleanup logic
+
+#     # Exit the application
+#     exit(0)
+
+
+# signal.signal(signal.SIGINT, signal_handler)
+# signal.signal(signal.SIGTERM, signal_handler)
 
 
 # Link in various routers
