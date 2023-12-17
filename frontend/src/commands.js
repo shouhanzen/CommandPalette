@@ -158,6 +158,7 @@ async function runCommand(command, win, app) {
 }
 
 async function register_issuer(issuer, win) {
+  log.info(`Registering issuer ${issuer.name} at url ${issuer.url}`)
 
   while (true) {
     try {
@@ -169,7 +170,7 @@ async function register_issuer(issuer, win) {
         log.error("Backend failed to start");
       }
     } catch (error) {
-      log.debug("Waiting for backend to start: " + error.message);
+      log.info(`Waiting for backend to start at url ${issuer.url}: ` + error.message);
     }
     await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
   }

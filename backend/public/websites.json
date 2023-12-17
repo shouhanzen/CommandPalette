@@ -1,9 +1,5 @@
 [
     {
-        "title": "anotherWebsite",
-        "url": "https://example.com"
-    },
-    {
         "title": "webreg",
         "url": "https://act.ucsd.edu/webreg2",
         "icon": "/icons/ucsd.png"

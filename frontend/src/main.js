@@ -11,7 +11,7 @@ const { exec, spawn, execFile } = require('child_process');
 
 // Set log level
 log.initialize({ preload: true });
-log.level = 'info';
+log.level = 'debug';
 
 // In the main process, catch all unhandled errors and log them
 process.on('uncaughtException', (error) => {
@@ -87,7 +87,6 @@ function tryStartBackend(win) {
       portUsed = port;
 
       // Construct the full path to the executable
-      log.info(app.getAppPath());
       let backendPath = "";
 
       let root = path.join(app.getAppPath(), "..", "..");
@@ -114,6 +113,8 @@ function tryStartBackend(win) {
       });
 
       log.info(`Backend path: ${backendPath}`)
+      log.info(`Backend port: ${portUsed}`)
+      log.info(`Backend process PID: ${backendProcess.pid}`)
 
     })
   }
