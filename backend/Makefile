@@ -38,11 +38,4 @@ onefolder:  ## make pyinstaller exe within folder of dependencies
 # onefile:
 # onefile:  ## make pyinstaller exe bundling dependencies into one file
 # 	$(PYINSTALLER) $(CLEAN) $(OUTPUT_NAME) $(ICON) $(EXTRA_HOOKS) $(MAIN_FILE) $(ONEFILE) 
-# 	cp -r public ./dist/$(FILENAME)/public
-
-dev:
-	echo "Starting Uvicorn server..."
-
-	source secrets.sh
-	source .venv/Scripts/activate
-	uvicorn src.main:app --reload --port 8000
+# 	cp -r public ./dist/$(FILENAME)/publics

@@ -48,7 +48,7 @@ function createWindow() {
     });
   } else {
     win.loadURL("http://localhost:3000");
-    win.webContents.openDevTools();
+    // win.webContents.openDevTools();
     win.webContents.on("did-fail-load", (e, code, desc) => {
       console.log("Failed to load app:", code, desc);
 
@@ -57,9 +57,7 @@ function createWindow() {
   }
 
   // Start python backend
-  if (app.isPackaged) {
-    startBackend();
-  }
+  startBackend();
 
   // win.loadURL(startUrl);
   win.on('closed', () => win = null);
@@ -69,9 +67,6 @@ function createWindow() {
   win.onerror = (error) => {
     log.error(`Window error: ${error}`);
   }
-
-  // log.warn('This is a warning message');
-  // log.error('This is an error message');
 
   // Maximize the window to take up the whole screen
   win.maximize();
@@ -88,32 +83,59 @@ function startBackend() {
 
     // Construct the full path to the executable
     log.info(app.getAppPath());
+    let backendPath = "";
 
-    let root = path.join(app.getAppPath(), "..", "..");
-    const backendPath = path.join(root, "backend", "backend_0p1.exe"); // Use double backslashes for Windows paths
+    if (app.isPackaged) {
 
-    // const command = `${backendPath} --port ${port}`;
+      let root = path.join(app.getAppPath(), "..", "..");
+      backendPath = path.join(root, "backend", "backend_0p1.exe"); // Use double backslashes for Windows paths
 
-    // Use execFile
-    // Define the backend executable and the arguments
-    const backendExecutable = backendPath; // Make sure this is just the executable name or path
-    const args = ['--port', port.toString()];
+      // const command = `${backendPath} --port ${port}`;
 
-    // Define the options, including the working directory
-    const options = { cwd: path.join(root, "backend") };
+      // Use execFile
+      // Define the backend executable and the arguments
+      const backendExecutable = backendPath; // Make sure this is just the executable name or path
+      const args = ['--port', port.toString()];
 
-    // Use execFile to run the backend executable
-    execFile(backendExecutable, args, options, (error, stdout, stderr) => {
-      if (error) {
-        log.error(`execFile error: ${error}`);
-        return;
-      }
-      log.info(`stdout: ${stdout}`);
-      if (stderr) {
-        log.error(`stderr: ${stderr}`);
-      }
-    });
+      // Define the options, including the working directory
+      const options = { cwd: path.join(root, "backend") };
 
+      // Use execFile to run the backend executable
+      backendProcess = execFile(backendExecutable, args, options, (error, stdout, stderr) => {
+        if (error) {
+          log.error(`execFile error: ${error}`);
+          return;
+        }
+        log.info(`stdout: ${stdout}`);
+        if (stderr) {
+          log.error(`stderr: ${stderr}`);
+        }
+      });
+    }
+
+    // We are in dev mode, use spawn
+    else {
+      const root = path.join(app.getAppPath(), "..", "backend");
+      backendPath = path.join(root, "entry.py"); // Use double backslashes for Windows paths
+      const command = `python ${backendPath} --port ${port} --reload true`;
+
+      // Use spawn to run the backend executable
+      backendProcess = spawn(command, { shell: true, cwd: root  });
+
+      // Log the stdout and stderr
+      backendProcess.stdout.on('data', (data) => {
+        log.info(`stdout: ${data}`);
+      });
+
+      backendProcess.stderr.on('data', (data) => {
+        log.error(`stderr: ${data}`);
+      });
+
+      backendProcess.on('close', (code) => {
+        log.info(`Backend process exited with code ${code}`);
+      });
+    }
+    
     log.info(`Backend started on port ${port}`);
     log.info(`Backend path: ${backendPath}`)
 
@@ -173,8 +195,8 @@ app.on('activate', () => {
 
 app.on('will-quit', () => {
   // Terminate the backend process when the app is about to close
-  // console.log("Terminating backend process");
-  // backendProcess.kill();
+  log.info("Terminating backend process");
+  backendProcess.kill();
 });
 
 ipcMain.on('minimize-app', () => {

@@ -32,7 +32,7 @@ def is_port_in_use(port):
             return True
 
 
-def run_server(port=51326):
+def run_server(port=51326, reload=False):
     # If the port is taken
     if is_port_in_use(port):
         # Find a free port
@@ -52,12 +52,13 @@ def run_server(port=51326):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, help="Set the port for run_server")
+    parser.add_argument(
+        "--reload",
+        type=bool,
+        default=False,
+        help="Set to True to enable server reloading",
+    )
     args = parser.parse_args()
 
     os.environ["SPOTIFY_CLIENT_SECRET"] = "0379541199f84282a275faeed8e2a1d5"
-    run_server(args.port)
-
-
-if __name__ == "__main__":
-    os.environ["SPOTIFY_CLIENT_SECRET"] = "0379541199f84282a275faeed8e2a1d5"
-    run_server()
+    run_server(args.port, args.reload)

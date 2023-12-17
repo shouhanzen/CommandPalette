@@ -2,6 +2,7 @@
 cd backend
 source .venv/Scripts/activate
 make onefolder
+cp -r dist/backend* ../frontend/dist/backend
 
 cd ..
 cd frontend
