@@ -162,7 +162,22 @@ async function register_issuer(issuer, win) {
 
   while (true) {
     try {
-      const response = await fetch(path.join(issuer.url, 'health'));
+      let health_path = issuer.url + "/health";
+
+      log.info(`Waiting for backend to start at url ${health_path}`);
+
+      AbortSignal.timeout ??= function timeout(ms) {
+        const ctrl = new AbortController()
+        setTimeout(() => {
+          log.info(`Timeout after ${ms}ms`);
+          ctrl.abort()
+        }, ms)
+        return ctrl.signal
+      }
+      
+      const response = await fetch(health_path, { signal: AbortSignal.timeout(5000) });
+      log.info(`Backend response: ${response.status} ${response.statusText}`);
+
       if (response.status === 200) {
         log.info("Backend started/detected successfully");
         break; // Exit the loop if the server is up
