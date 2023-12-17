@@ -1,6 +1,6 @@
 import spotipy
 import os
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyPKCE
 from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
 from src.cmd_types import CommandList, Command
@@ -11,13 +11,12 @@ router = APIRouter(prefix="/spotify")
 # Set up authentication
 # I think we need an oauth server for this to work...
 
-# sp_oauth = SpotifyOAuth(
-#     client_id="01daafd66f6c494ebeeabd46619b1082",
-#     client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
-#     redirect_uri="http://127.0.0.1:51032/spotify/callback",
-#     scope="user-modify-playback-state,user-read-playback-state",
-# )
-# sp = spotipy.Spotify(auth_manager=sp_oauth)
+sp_oauth = SpotifyPKCE(
+    client_id="01daafd66f6c494ebeeabd46619b1082",
+    redirect_uri="http://127.0.0.1:51032/spotify/callback",
+    scope="user-modify-playback-state,user-read-playback-state",
+)
+sp = spotipy.Spotify(auth_manager=sp_oauth)
 
 
 def play_song(song_uri):
