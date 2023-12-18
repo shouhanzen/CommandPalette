@@ -56,6 +56,9 @@ Below is a picture demonstrating the fast search that this feature enables us.
 
 By searching for `sp r` we can find the `Spotify: Resume` command. `sp` is implicitly used as a shortcut for spotify, and `r` is used as a shortcut for resume.
 
+<img width="482" alt="image" src="https://github.com/D0rkKnight/CommandPalette/assets/20606858/d57f5fb4-9a89-4c47-aaf9-9ea5f2fdd0ab">
+
+
 ### Aliases
 
 It's easy to forget the exact name of a command, but tags give us a way to alias commands.
@@ -70,6 +73,9 @@ Given the below command:
     }
     ```
 
-## Most Recently Used (MRU) Filtering
+If we search `ex`, the tag will be matched and the Quit command returned.
 
-## Search Term and MRU Filtering Combined
+<img width="479" alt="image" src="https://github.com/D0rkKnight/CommandPalette/assets/20606858/20bb1d19-de5f-4eeb-a20e-2fe669380bb4">
+
+
+
