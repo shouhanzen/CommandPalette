@@ -1,0 +1,15 @@
+[
+    {
+        "title": "WSL VPN Fix",
+        "description": "Fix VPN in WSL",
+        "shell": "powershell",
+        "script": "wsl-vpn-fix.ps1",
+        "sudo": true
+    },
+    {
+        "title": "Hello World",
+        "description": "Echoes Hello World",
+        "shell": "bash",
+        "script": "echo.sh"
+    }
+]

@@ -18,17 +18,9 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-base_commands = CommandList(
-    commands=[
-        Command(
-            title="WSL VPN Fix",
-            description="Fix VPN in WSL",
-            command=cmd_interface.wsl_vpn_fix,
-        ),
-    ]
-)
+base_commands = CommandList(commands=[])
 
-contributors = [web_interface, spotify_core]
+contributors = [web_interface, spotify_core, cmd_interface]
 
 
 def build_commands_list():
