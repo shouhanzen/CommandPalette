@@ -5,6 +5,8 @@ const log = require('electron-log');
 const path = require('path');
 const commands = require('./commands');
 const cmdMRU = require('./cmd_mru');
+const { screen } = require('electron');
+
 
 const portfinder = require('portfinder');
 const { exec, spawn, execFile } = require('child_process');
@@ -153,12 +155,25 @@ function tryStartBackend(win) {
   }, win);
 }
 
+function moveToActiveMonitor(win) {
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const activeDisplay = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+  
+  const { x, y, width, height } = activeDisplay.bounds;
+  win.setBounds({ x, y, width, height });
+  win.focus();
+}
+
 function toggleWindow() {
   if (win.isVisible()) {
     win.blur();
     win.hide();
   } else {
+
+    // Move the window to the active monitor
+    moveToActiveMonitor(win);
     win.show();
+
     resetSearch();
   }
 }
