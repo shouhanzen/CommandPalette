@@ -47,34 +47,40 @@ jobs:
       - name: Build project
         run: make build
 
-      - name: Upload Windows/MacOS Executable to Artifacts
-        if: matrix.os == 'windows-latest' || matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v2
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          name: palette-${{ matrix.os }}
-          path: dist/Palette*.exe
+          files: dist/Palette*
 
-      - name: Upload Linux Snap to Artifacts
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v2
-        with:
-          name: palette-${{ matrix.os }}
-          path: dist/Palette*.snap
+      # - name: Upload Windows/MacOS Executable to Artifacts
+      #   if: matrix.os == 'windows-latest' || matrix.os == 'macos-latest'
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: palette-${{ matrix.os }}
+      #     path: dist/Palette*.exe
 
-  # From https://dev.to/eugenebabichenko/automated-multi-platform-releases-with-github-actions-1abg
-  release:
-    name: Create release
-    needs: build
-    runs-on: ubuntu-latest
-    # Note this. We are going to use that in further jobs.
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ncipollo/release-action@v1
-        with:
-          artifacts: "palette-ubuntu-latest,palette-windows-latest,palette-macos-latest"
-          # bodyFile: "body.md"
+      # - name: Upload Linux Snap to Artifacts
+      #   if: matrix.os == 'ubuntu-latest'
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: palette-${{ matrix.os }}
+      #     path: dist/Palette*.snap
+
+  # # From https://dev.to/eugenebabichenko/automated-multi-platform-releases-with-github-actions-1abg
+  # release:
+  #   name: Create release
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   # Note this. We are going to use that in further jobs.
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: ncipollo/release-action@v1
+  #       with:
+  #         artifacts: "palette-ubuntu-latest,palette-windows-latest,palette-macos-latest"
+  #         # bodyFile: "body.md"
 
   # release_assets:
   #   needs: [create_release, build]
