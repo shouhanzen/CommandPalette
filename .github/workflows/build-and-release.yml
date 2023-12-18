@@ -50,11 +50,16 @@ jobs:
       - name: Build project
         run: make build
 
-      - name: Release
+      - name: Rename build artifacts
+        run: |
+          mv dist/Palette*.exe dist/Palette-${{matrix.os}}.exe
+          mv dist/Palette*.snap dist/Palette-${{matrix.os}}.snap
+
+      - name: Release Windows/MacOS
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') && (matrix.os == 'windows-latest' || matrix.os == 'macos-latest')
         with:
-          files: dist/Palette*
+          files: dist/Palette*.exe
 
       # - name: Upload Windows/MacOS Executable to Artifacts
       #   if: matrix.os == 'windows-latest' || matrix.os == 'macos-latest'
