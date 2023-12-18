@@ -53,6 +53,7 @@ jobs:
       - name: Rename build artifacts
         run: |
           mv dist/Palette*.exe dist/Palette-${{matrix.os}}.exe
+          mv dist/Palette*.dmg dist/Palette-${{matrix.os}}.dmg
           mv dist/Palette*.snap dist/Palette-${{matrix.os}}.snap
 
       - name: Release Windows/MacOS
