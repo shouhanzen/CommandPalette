@@ -1,4 +1,5 @@
 .venv
+.wsl_venv
 secrets.sh
 build
 dist

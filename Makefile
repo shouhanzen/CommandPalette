@@ -24,6 +24,6 @@ build:
 	make onefolder
 	@echo "Building frontend..."
 	@cd $(FRONTEND_PATH) && npm run build
-	@rm -rf dist && mkdir dist && \
-	cp -r $(FRONTEND_PATH)/dist/Palette*.exe dist/Palette_Setup.exe
+	@rm -rf dist && \
+	cp -r $(FRONTEND_PATH)/dist dist
 	@echo "Build complete."
