@@ -13,7 +13,7 @@ A quick overview of how the backend collects commands before sending them to the
    These contributors are modules imported from elsewhere in the project. They all share the get_commands() function, which returns a list of Command objects.
 
 2. Each contributing module is left to its own devices to collect commands. For example, the web_interface module collects commands from the commands.json file, and the spotify_core module has a series of hard coded commands.
-3. Each module returns the commands in a format specified by the Command class. The Command class is defined in cmd_types.py. The Command class s defined as follows:
+3. Each module returns the commands in a format specified by the Command class. The Command class is defined in cmd_types.py, as follows:
 
    ```python
 

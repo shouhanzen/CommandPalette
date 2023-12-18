@@ -88,3 +88,4 @@ Go to tutorials/ to see a couple of tutorials on ways you can contribute to this
 
 - Make it so you can spawn the Palette backend separately, and connect Palette clients to it
 - Permit Palette clients to connect to multiple Palette backends
+- Persist command MRU to disk
