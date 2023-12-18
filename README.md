@@ -3,6 +3,14 @@
 A command palette for your desktop. \
 <img width="960" alt="image" src="https://github.com/D0rkKnight/CommandPalette/assets/20606858/a579acc8-c74f-4bc4-b2ef-e1199868f20c">
 
+## Features
+
+As of right now, Palette can:
+- Open websites (acting as a unified bookmark system)
+- Run scripts in shells like Powershell and Git Bash
+  - Untested on MacOS
+- Control your Spotify
+
 ## Controls
 `Ctrl+Shift+Alt+P` opens and closes the Palette \
 `Enter` executes the highlighted command \
@@ -62,13 +70,7 @@ This will spawn the NextJS dev server and the Electron client. In a moment, you 
 
 Go to tutorials/ to see a couple of tutorials on ways you can contribute to this project.
 
-## Features
 
-As of right now, Palette can:
-- Open websites (acting as a unified bookmark system)
-- Run scripts in shells like Powershell and Git Bash
-  - Untested on MacOS
-- Control your Spotify
 
 ## TODO
 
