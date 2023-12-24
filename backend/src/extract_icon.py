@@ -1,3 +1,5 @@
+# Attribs: https://pythonassets.com/posts/extract-icon-from-executable-file-windows/
+
 from ctypes import Array, byref, c_char, memset, sizeof
 from ctypes import c_int, c_void_p, POINTER
 from ctypes.wintypes import *
@@ -99,6 +101,7 @@ def extract_icon(filename: str, size: IconSize) -> Array[c_char]:
         byref(hicon) if size == IconSize.SMALL else None,
         1,
     )
+    print(extracted_icons)
     if extracted_icons != 1:
         raise ctypes.WinError()
 

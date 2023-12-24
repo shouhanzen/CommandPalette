@@ -2,6 +2,7 @@ import subprocess
 import platform
 import json
 import os
+import src.extract_icon as extract_icon
 from src.cmd_types import *
 
 
@@ -56,6 +57,17 @@ def get_prog_commands():
                 names.append(trimmed)
                 unique_shortcuts.append(shortcut)
 
+        for shortcut in unique_shortcuts:
+            # Get icon
+            try:
+                icon = extract_icon.extract_icon(
+                    shortcut["path"], extract_icon.IconSize.SMALL
+                )
+                print(icon)
+
+            except Exception as e:
+                print(f"Error extracting icon for {shortcut['name']}: {e}")
+
         cmds = []
         for shortcut in unique_shortcuts:
             cmds.append(
@@ -86,7 +98,9 @@ def list_shortcuts_windows(directory):
             elif item.lower().endswith(".lnk") or item.lower().endswith(".url"):
                 name = item[:-4]
 
-                out += [{"name": name, "path": full_path}]
+                real_path = os.path.realpath(full_path)
+
+                out += [{"name": name, "path": real_path}]
 
     return out
 
