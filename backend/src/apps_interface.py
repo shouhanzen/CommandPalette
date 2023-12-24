@@ -84,6 +84,8 @@ def get_prog_commands():
 
 
 def list_shortcuts_windows(directory):
+    import win32com.client
+
     out = []
 
     """
@@ -98,7 +100,17 @@ def list_shortcuts_windows(directory):
             elif item.lower().endswith(".lnk") or item.lower().endswith(".url"):
                 name = item[:-4]
 
-                real_path = os.path.realpath(full_path)
+                pywin_client = win32com.client.Dispatch("WScript.Shell")
+
+                if item.lower().endswith(".lnk"):
+                    shortcut = pywin_client.CreateShortCut(full_path)
+                    real_path = shortcut.Targetpath
+
+                elif item.lower().endswith(".url"):
+                    with open(full_path, "r") as f:
+                        data = json.load(f)
+                        real_path = data["url"]
+                    real_path = full_path
 
                 out += [{"name": name, "path": real_path}]
 

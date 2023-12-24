@@ -4,3 +4,4 @@ pydantic
 spotipy
 pyinstaller
 pillow
+pywin32
