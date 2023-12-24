@@ -119,6 +119,10 @@ const CommandPalette = () => {
           let newComponent = componentFromFollowupBody(followup);
           setPanelStack([...panelStack, newComponent]);
           break;
+        case "clear":
+          console.log("Clearing panel stack");
+          setPanelStack([]);
+          break;
         default:
           throw new Error("Unknown followup action");
       }

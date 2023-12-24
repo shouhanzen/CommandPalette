@@ -176,8 +176,11 @@ async function runCommand(command, win, app) {
   log.info('Command result:', result);
 
   // If the command result has "type" as a property, forward to the frontend to "generate a followup"
-  if ("type" in result) {
+  if (result && "action" in result) {
     make_followup(result, win);
+  } else {
+    // Otherwise, send a signal to clear the stack
+    make_followup({ action: "clear" }, win);
   }
 }
 
