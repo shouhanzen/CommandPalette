@@ -13,6 +13,17 @@ function quit_prog(win, app) {
     app.quit();
 }
 
+function help_menu(win, app) {
+  // Returns data necessary for a help menu
+  return {
+    type: "md_page",
+    title: "Help",
+    contents: "This is the help menu.",
+    action: "append",
+    key: "help"
+  }
+}
+
 const commands_data = [
     { 
       title: "Clear Command History", 
@@ -32,13 +43,18 @@ const commands_data = [
       tags: ["Exit", "Leave"],
       icon: "palette.svg",
     },
+    {
+      title: "Help",
+      description: "How to use Palette",
+      command: help_menu,
+      issuer: "electron",
+      closes_palette: false,
+      tags: ["Manual", "Tutorial"],
+      icon: "palette.svg",
+    }
 ];
 
 const command_issuers = [
-  // {
-  //   name: "uvicorn",
-  //   url: "http://127.0.0.1:8000",
-  // },
 ]
 
 function get_issuers() {
@@ -114,6 +130,8 @@ async function commandsFromIssuer(issuer_data, commands_temp) {
 }
 
 async function runCommand(command, win, app) {
+  let result = null;
+
   // Check the issuer of the command
   for (issuer in command_issuers) {
     if (command.issuer === command_issuers[issuer].name) {
@@ -126,8 +144,7 @@ async function runCommand(command, win, app) {
           },
           body: JSON.stringify(command),
         });
-        const result = await response.json();
-        console.log('Command result:', result);
+        result = await response.json();
       } catch (err) {
         console.error('Error running command:', err);
       }
@@ -146,7 +163,7 @@ async function runCommand(command, win, app) {
 
     if (original_cmd) {
       // If the original command is found, run it
-      original_cmd.command(win, app);
+      result = original_cmd.command(win, app);
     } else {
       // Raise exception
       throw `Command not found: ${command.title}`;
@@ -154,6 +171,13 @@ async function runCommand(command, win, app) {
   } else {
     // Raise exception
     throw `Issuer not found: ${command.issuer}`;
+  }
+
+  log.info('Command result:', result);
+
+  // If the command result has "type" as a property, forward to the frontend to "generate a followup"
+  if ("type" in result) {
+    make_followup(result, win);
   }
 }
 
@@ -198,6 +222,10 @@ async function register_issuer(issuer, win) {
   new_commands = await get_commands();
   log.debug("New commands: " + new_commands);
   win.webContents.send('new-commands', new_commands);
+}
+
+async function make_followup(result, win) {
+  win.webContents.send("cmd-followup", result);
 }
 
 // export default commands_data;

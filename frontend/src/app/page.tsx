@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, ReactNode } from "react";
 
 const CommandPalette = () => {
   const [commands, setCommands] = useState([] as Command[]);
@@ -11,6 +11,7 @@ const CommandPalette = () => {
   const searchRef = useRef(null as HTMLInputElement | null);
 
   const [lastUsedList, setLastUsedList] = useState([] as string[]);
+  const [panelStack, setPanelStack] = useState([] as ReactNode[]);
 
   function setErrorGuarded(err: unknown) {
     if (err instanceof Error) {
@@ -107,6 +108,21 @@ const CommandPalette = () => {
       console.log("New commands: ", commands);
       setCommands(commands);
     });
+
+    window.electron.onCmdFollowup((event: Event, followup: CommandFollowup) => {
+      console.log("Command Followup: ", followup);
+
+      switch (followup.action) {
+        case "append":
+          console.log("Appending to panel stack");
+
+          let newComponent = componentFromFollowupBody(followup);
+          setPanelStack([...panelStack, newComponent]);
+          break;
+        default:
+          throw new Error("Unknown followup action");
+      }
+    });
   }, []);
 
   if (isLoading) return <div className="loading-message">Loading...</div>;
@@ -199,6 +215,14 @@ const CommandPalette = () => {
           ))}
         </ul>
       </div>
+
+      <div className="additional-panels">{panelStack}</div>
+
+      <div className="command-palette-footer">
+        <p className="command-palette-footer-text">
+          Press <strong>Ctrl + R</strong> to reload the app
+        </p>
+      </div>
     </div>
   );
 };
@@ -246,6 +270,22 @@ function compareCommands(
       return aIndex - bIndex;
     }
   };
+}
+
+function componentFromFollowupBody(followup: CommandFollowup) {
+  switch (followup.type) {
+    case "md_page":
+      // Do stuff
+
+      return (
+        <div key={followup.key}>
+          <h1> {followup.title} </h1>
+          <p> {followup.contents} </p>
+        </div>
+      );
+    default:
+      throw new Error("Unknown followup type");
+  }
 }
 
 export default CommandPalette;

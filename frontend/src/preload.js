@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('electron', {
   
   resetSearch: (func) => ipcRenderer.on('reset-search', func),
   onNewCommands: (func) => ipcRenderer.on('new-commands', func),
+  onCmdFollowup: (func) => ipcRenderer.on('cmd-followup', func),
 
   retrieveMRU: () => ipcRenderer.invoke('retrieve-mru'),
   onMRUChange: (func) => ipcRenderer.on('mru-change', func),

@@ -5,6 +5,7 @@ interface Window {
         runCommand: (command: Command) => void;
         resetSearch: (func: Function) => void;
         onNewCommands: (func: Function) => void;
+        onCmdFollowup: (func: Function) => void;
         retrieveMRU: () => Promise<any>;
         onMRUChange: (func: Function) => void;
         
@@ -17,3 +18,11 @@ interface Command {
     description: string;
     tags: string[];
   }
+
+interface CommandFollowup {
+    type: string,
+    title: string,
+    contents: string,
+    action: string,
+    key: string,
+}

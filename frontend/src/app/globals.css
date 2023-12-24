@@ -38,11 +38,10 @@ body {
 
 .command-palette {
   width: 600px;
-  max-height: 400px;
+  /* max-height: 400px; */
   background-color: #1e1e1e;
   color: #fff;
   border-radius: 5px;
-  overflow-y: auto;
 
   outline: none;
   box-shadow: none;
@@ -52,11 +51,13 @@ body {
 }
 
 .command-palette-body {
-  height: 100%;
+  max-height: 400px;
   padding-left: 20px;
   padding-right: 20px;
   padding-bottom: 20px;
   padding-top: 5px;
+  overflow-y: auto;
+
 }
 
 .command-input {
