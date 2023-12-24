@@ -2,23 +2,13 @@ import subprocess
 import platform
 import json
 import os
-import winreg
-
-# import win32com.client
 from src.cmd_types import *
-
-pywin_shell = None
 
 
 def start_app(app: str):
     if platform.system() == "Windows":
-        subprocess.Popen(f"start {app}", shell=True)
-    elif platform.system() == "Linux":
-        raise NotImplementedError
-        # subprocess.Popen(command.command, shell=True)
-    elif platform.system() == "Darwin":
-        raise NotImplementedError
-        # subprocess.Popen(["open", command.command])
+        command = f'start "" "{app}"'
+        subprocess.Popen(command, shell=True)
     else:
         raise NotImplementedError
 
@@ -26,21 +16,12 @@ def start_app(app: str):
 def get_commands():
     commands = []
 
-    progs = get_installed_programs()
-
-    for prog in progs:
-        commands.append(
-            Command(
-                title=prog,
-                command=lambda name=prog: print(f"Debug msg for prog {name}"),
-                description="",
-            )
-        )
+    commands += get_prog_commands()
 
     return commands
 
 
-def get_installed_programs():
+def get_prog_commands():
     # opens start menu and gets all programs
     if platform.system() == "Windows":
         global_path = os.path.join(
@@ -49,14 +30,50 @@ def get_installed_programs():
             "Windows",
             "Start Menu",
         )
+        local_path = os.path.join(
+            os.environ["APPDATA"],
+            "Microsoft",
+            "Windows",
+            "Start Menu",
+        )
 
         print("System Start Menu Contents:")
-        list_shortcuts_windows(global_path)
+        shortcuts = list_shortcuts_windows(global_path) + list_shortcuts_windows(
+            local_path
+        )
+
+        # print(shortcuts)
+
+        # Clear out shortcuts with duplicate names
+        names = []
+        unique_shortcuts = []
+        for shortcut in shortcuts:
+            trimmed = shortcut["name"].strip()
+
+            if trimmed in names:
+                print("WARNING: Duplicate shortcut name found: " + shortcut["name"])
+            else:
+                names.append(trimmed)
+                unique_shortcuts.append(shortcut)
+
+        cmds = []
+        for shortcut in unique_shortcuts:
+            cmds.append(
+                Command(
+                    title=f"Run: {shortcut['name']}",
+                    command=lambda path=shortcut["path"]: start_app(path),
+                    description="",
+                )
+            )
+
+        return cmds
     else:
         raise NotImplementedError
 
 
 def list_shortcuts_windows(directory):
+    out = []
+
     """
     Recursively lists all shortcuts in the given directory and writes them to a log file.
     """
@@ -65,16 +82,13 @@ def list_shortcuts_windows(directory):
             full_path = os.path.join(directory, item)
             if os.path.isdir(full_path):
                 # Recursively search in directories
-                list_shortcuts_windows(full_path)
-            elif item.lower().endswith(".lnk"):
-                # Log the shortcut name and path
-                print(f"{item}: {full_path}\n")
+                out = out + list_shortcuts_windows(full_path)
+            elif item.lower().endswith(".lnk") or item.lower().endswith(".url"):
+                name = item[:-4]
 
-                # if pywin_shell == None:
-                #     pywin_shell = win32com.client.Dispatch("WScript.Shell")
+                out += [{"name": name, "path": full_path}]
 
-                # shortcut = pywin_shell.CreateShortCut(full_path)
-                # print(shortcut.Targetpath)
+    return out
 
 
 # Courtesy of https://stackoverflow.com/questions/75040757/how-do-i-list-all-the-installed-applications-using-python, Florian EDEMESSI

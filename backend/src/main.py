@@ -36,7 +36,9 @@ def build_commands_list():
     # Assert that command titles are unique
     titles = []
     for command in out.commands:
-        assert command.title not in titles
+        if command.title in titles:
+            raise ValueError(f"Duplicate command title: {command.title}")
+
         titles.append(command.title)
 
     return out
