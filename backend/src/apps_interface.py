@@ -12,10 +12,6 @@ from src.cmd_types import *
 
 def start_app(app: str):
     if platform.system() == "Windows":
-        import pythoncom
-
-        pythoncom.CoInitialize()
-
         command = f'start "" "{app}"'
         subprocess.Popen(command, shell=True)
     else:
@@ -82,7 +78,7 @@ def get_prog_commands():
             )
             print(icon_path)
 
-            remote_icon_path = ""
+            remote_icon_path = os.path.join("/", "icons", "default_prog_windows.svg")
             if success:
                 remote_icon_path = dest_path.replace(
                     os.path.join(os.getcwd(), "public"), ""
