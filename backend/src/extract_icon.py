@@ -138,8 +138,17 @@ def extract_icon(filename: str, size: IconSize) -> Image:
         raise ctypes.WinError()
 
     # My code
+    # Map from BGRA -> RGBA
+    # Function to swap red and blue bytes in BGRA to get RGBA
+    def swap_red_blue(bgra_buffer, size):
+        for i in range(0, size, 4):
+            # Swap the red and blue bytes (first and third bytes)
+            bgra_buffer[i], bgra_buffer[i + 2] = bgra_buffer[i + 2], bgra_buffer[i]
+
+    # Call the function to modify the bits buffer
+    swap_red_blue(bits, bmi.bmiHeader.biSizeImage)
+
     mode = "RGBA"
-    bit_count = bmi.bmiHeader.biBitCount
     image = Image.frombuffer(mode, (w, h), bits, "raw", mode, 0, 1)
 
     cleanup()

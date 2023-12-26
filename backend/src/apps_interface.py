@@ -12,8 +12,9 @@ from src.cmd_types import *
 
 def start_app(app: str):
     if platform.system() == "Windows":
-        # import pythoncom
-        # pythoncom.CoInitialize()
+        import pythoncom
+
+        pythoncom.CoInitialize()
 
         command = f'start "" "{app}"'
         subprocess.Popen(command, shell=True)
