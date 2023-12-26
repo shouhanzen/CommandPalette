@@ -3,6 +3,9 @@ import platform
 import json
 import os
 import src.extract_icon as extract_icon
+import configparser
+import shutil
+from PIL import Image
 from src.cmd_types import *
 
 
@@ -57,30 +60,82 @@ def get_prog_commands():
                 names.append(trimmed)
                 unique_shortcuts.append(shortcut)
 
-        for shortcut in unique_shortcuts:
-            # Get icon
-            try:
-                icon = extract_icon.extract_icon(
-                    shortcut["path"], extract_icon.IconSize.SMALL
-                )
-                print(icon)
-
-            except Exception as e:
-                print(f"Error extracting icon for {shortcut['name']}: {e}")
-
         cmds = []
+
         for shortcut in unique_shortcuts:
+            print(shortcut)
+
+            # Get icon
+            icon_path = ""
+            if shortcut["icon"] != "":
+                icon_path = shortcut["icon"]
+            elif shortcut["path"].endswith(".exe"):
+                icon_path = shortcut["path"]
+
+            dest_path, success = load_icon_from_resource_windows(
+                icon_path, shortcut["name"]
+            )
+            print(icon_path)
+
+            remote_icon_path = ""
+            if success:
+                remote_icon_path = dest_path.replace(
+                    os.path.join(os.getcwd(), "public"), ""
+                )
+
             cmds.append(
                 Command(
                     title=f"Run: {shortcut['name']}",
                     command=lambda path=shortcut["path"]: start_app(path),
                     description="",
+                    icon=remote_icon_path,
                 )
             )
 
         return cmds
     else:
         raise NotImplementedError
+
+
+def load_icon_from_resource_windows(path, fname):
+    success = False
+    dest_path = ""
+    if path.endswith(".exe"):
+        try:
+            icon = extract_icon.extract_icon(path, extract_icon.IconSize.SMALL)
+            print(icon)
+
+            # Store icon in public/icons/programs
+            dest_path = os.path.join(
+                os.getcwd(), "public", "icons", "programs", fname + ".ico"
+            )
+            icon.save(dest_path)
+
+            print("Saving icon for " + path + " to " + dest_path + ".")
+            success = True
+
+        except Exception as e:
+            print(f"Error extracting icon for {path}: {e}")
+
+    elif path.endswith(".ico"):
+        dest_path = os.path.join(
+            os.getcwd(),
+            "public",
+            "icons",
+            "programs",
+            fname + ".ico",
+        )
+
+        try:
+            shutil.copy(
+                path,
+                dest_path,
+            )
+            success = True
+        except Exception as e:
+            print(f"Error copying icon for {path}: {e}")
+
+    return dest_path, success
 
 
 def list_shortcuts_windows(directory):
@@ -100,19 +155,25 @@ def list_shortcuts_windows(directory):
             elif item.lower().endswith(".lnk") or item.lower().endswith(".url"):
                 name = item[:-4]
 
-                pywin_client = win32com.client.Dispatch("WScript.Shell")
+                icon = ""  # If empty, means we extract from executable
 
                 if item.lower().endswith(".lnk"):
+                    pywin_client = win32com.client.Dispatch("WScript.Shell")
                     shortcut = pywin_client.CreateShortCut(full_path)
                     real_path = shortcut.Targetpath
 
                 elif item.lower().endswith(".url"):
-                    with open(full_path, "r") as f:
-                        data = json.load(f)
-                        real_path = data["url"]
-                    real_path = full_path
+                    config = configparser.ConfigParser()
+                    config.read(full_path)
 
-                out += [{"name": name, "path": real_path}]
+                    data = dict(config.items("InternetShortcut"))
+                    print(data)
+                    real_path = data["url"]
+
+                    if "iconfile" in data:
+                        icon = data["iconfile"]
+
+                out += [{"name": name, "path": real_path, "icon": icon}]
 
     return out
 

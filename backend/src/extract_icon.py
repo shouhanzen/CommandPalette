@@ -6,6 +6,8 @@ from ctypes.wintypes import *
 from enum import Enum
 import ctypes
 
+from PIL import Image
+
 
 BI_RGB = 0
 DIB_RGB_COLORS = 0
@@ -84,7 +86,7 @@ class IconSize(Enum):
         return size_table[size]
 
 
-def extract_icon(filename: str, size: IconSize) -> Array[c_char]:
+def extract_icon(filename: str, size: IconSize) -> Image:
     """
     Extract the icon from the specified `filename`, which might be
     either an executable or an `.ico` file.
@@ -135,5 +137,10 @@ def extract_icon(filename: str, size: IconSize) -> Array[c_char]:
         cleanup()
         raise ctypes.WinError()
 
+    # My code
+    mode = "RGBA"
+    bit_count = bmi.bmiHeader.biBitCount
+    image = Image.frombuffer(mode, (w, h), bits, "raw", mode, 0, 1)
+
     cleanup()
-    return bits
+    return image
