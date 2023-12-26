@@ -107,7 +107,7 @@ def load_icon_from_resource_windows(path, fname):
     dest_path = ""
     if path.endswith(".exe"):
         try:
-            icon = extract_icon.extract_icon(path, extract_icon.IconSize.SMALL)
+            icon = extract_icon.extract_icon(path, extract_icon.IconSize.LARGE)
             print(icon)
 
             # Store icon in public/icons/programs
