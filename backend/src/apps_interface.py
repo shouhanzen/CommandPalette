@@ -180,9 +180,3 @@ def list_shortcuts_windows(directory):
                 out += [{"name": name, "path": real_path, "icon": icon}]
 
     return out
-
-
-def simple_print(str: str):
-    # Sanitizes to ascii first
-    str = str.encode("ascii", "ignore").decode("ascii")
-    print(str)
