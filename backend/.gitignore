@@ -6,3 +6,4 @@ dist
 *.spec
 *.egg-info
 .cache
+public/icons/programs/*
