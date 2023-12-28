@@ -32,6 +32,7 @@ venv:  ## make virtual environment (activate with  `source venv/Scripts/activate
 
 onefolder:
 onefolder:  ## make pyinstaller exe within folder of dependencies
+	rm -rf dist/*
 	$(PYINSTALLER) $(CLEAN) $(OUTPUT_NAME) $(ICON) $(EXTRA_HOOKS) $(MAIN_FILE)
 	cp -r public ./dist/$(FILENAME)/public
 

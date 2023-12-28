@@ -22,7 +22,11 @@ process.on('uncaughtException', (error) => {
 
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
-const SHORTCUT = 'Ctrl+Shift+Alt+P';
+const SHORTCUT = () => {
+  if (process.platform == "win32") return 'Ctrl+Shift+Alt+P';
+  if (process.platform == "darwin") return 'Option+Shift+P';
+  return 'Unknown OS';
+};
 let backendProcess = null;
 
 const appServe = app.isPackaged ? serve({
@@ -92,7 +96,12 @@ function tryStartBackend(win) {
       let backendPath = "";
 
       let root = path.join(app.getAppPath(), "..", "..");
-      backendPath = path.join(root, "backend", "backend_0p1.exe"); // Use double backslashes for Windows paths
+      let backend_executable = "backend_0p1.exe";
+
+      if (process.platform == "darwin")
+        backend_executable = "backend_0p1";
+
+      backendPath = path.join(root, "backend", backend_executable); // Use double backslashes for Windows paths
 
       // Use execFile
       // Define the backend executable and the arguments
@@ -182,7 +191,7 @@ app.whenReady().then(() => {
   createWindow()
 
   // Register a global shortcut listener.
-  const ret = globalShortcut.register(SHORTCUT, () => {
+  const ret = globalShortcut.register(SHORTCUT(), () => {
     toggleWindow();
   });
 
@@ -191,7 +200,7 @@ app.whenReady().then(() => {
   }
 
   // Check whether a shortcut is registered.
-  console.log(globalShortcut.isRegistered(SHORTCUT));
+  console.log(globalShortcut.isRegistered(SHORTCUT()));
 });
 
 // Quit when all windows are closed.
