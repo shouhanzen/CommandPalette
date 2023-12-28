@@ -5,7 +5,6 @@ import os
 import src.extract_icon as extract_icon
 import configparser
 import shutil
-import pythoncom
 
 from PIL import Image
 from src.cmd_types import *
@@ -20,18 +19,19 @@ def start_app(app: str):
 
 
 def get_commands():
-    pythoncom.CoInitialize()
-
     commands = []
     commands += get_prog_commands()
 
-    pythoncom.CoUninitialize()
     return commands
 
 
 def get_prog_commands():
     # opens start menu and gets all programs
     if platform.system() == "Windows":
+        import pythoncom
+
+        pythoncom.CoInitialize()
+
         global_path = os.path.join(
             os.environ["PROGRAMDATA"],
             "Microsoft",
@@ -96,6 +96,7 @@ def get_prog_commands():
                 )
             )
 
+        pythoncom.CoUninitialize()
         return cmds
     else:
         raise NotImplementedError
