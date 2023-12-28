@@ -4,4 +4,4 @@ pydantic
 spotipy
 pyinstaller
 pillow
-pywin32
+pywin32 ; sys_platform == 'win32'
