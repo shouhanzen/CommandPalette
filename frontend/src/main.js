@@ -96,7 +96,12 @@ function tryStartBackend(win) {
       let backendPath = "";
 
       let root = path.join(app.getAppPath(), "..", "..");
-      backendPath = path.join(root, "backend", "backend_0p1.exe"); // Use double backslashes for Windows paths
+      let backend_executable = "backend_0p1.exe";
+
+      if (process.platform == "darwin")
+        backend_executable = "backend_0p1";
+
+      backendPath = path.join(root, "backend", backend_executable); // Use double backslashes for Windows paths
 
       // Use execFile
       // Define the backend executable and the arguments
