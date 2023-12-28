@@ -79,7 +79,12 @@ function tryStartBackend(win) {
 
   let portUsed = 8000;
 
-  if (app.isPackaged) {
+  let packaged = app.isPackaged;
+  packaged = true; // Force packaged mode
+
+  if (packaged) {
+
+    log.info ("Running in packaged mode, using portfinder to find open port");
 
     portfinder.getPort(async (err, port) => {
       if (err) {
@@ -92,30 +97,47 @@ function tryStartBackend(win) {
       let backendPath = "";
 
       let root = path.join(app.getAppPath(), "..", "..");
-      backendPath = path.join(root, "backend", "backend_0p1.exe"); // Use double backslashes for Windows paths
+      backendPath = path.join("backend_0p1.exe"); // Use double backslashes for Windows paths
+
+      // If in a devmode test, use the devmode backend
+      if (!app.isPackaged) {
+        root = path.join(app.getAppPath(), "..");
+        backendPath = path.join("dist", "backend_0p1", "backend_0p1.exe"); // Use double backslashes for Windows paths
+      }
 
       // Use execFile
       // Define the backend executable and the arguments
-      const backendExecutable = backendPath; // Make sure this is just the executable name or path
       const args = ['--port', portUsed.toString()];
+      // const command = backendPath + " " + args.join(" ");
 
       // Define the options, including the working directory
       const options = { cwd: path.join(root, "backend") };
 
-      // Use execFile to run the backend executable
-      backendProcess = execFile(backendExecutable, args, options, (error, stdout, stderr) => {
-        if (error) {
-          log.error(`execFile error: ${error}`);
-          return;
-        }
-        log.info(`stdout: ${stdout}`);
-        if (stderr) {
-          log.error(`stderr: ${stderr}`);
-        }
-      });
-
+      
       log.info(`Backend path: ${backendPath}`)
       log.info(`Backend port: ${portUsed}`)
+
+      // Use execFile to run the backend executable
+      // Use spawn to run the backend executable
+      const backendProcess = spawn(backendPath, args, options);
+
+      // Handle the stdout, stderr, and error events
+      backendProcess.stdout.on('data', (data) => {
+        log.info(`stdout: ${data}`);
+      });
+
+      backendProcess.stderr.on('data', (data) => {
+        log.error(`stderr: ${data}`);
+      });
+
+      backendProcess.on('error', (error) => {
+        log.error(`spawn error: ${error}`);
+      });
+
+      backendProcess.on('close', (code) => {
+        log.info(`child process exited with code ${code}`);
+      });
+
       log.info(`Backend process PID: ${backendProcess.pid}`)
 
     })

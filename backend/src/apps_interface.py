@@ -5,6 +5,7 @@ import os
 import src.extract_icon as extract_icon
 import configparser
 import shutil
+import pythoncom
 
 from PIL import Image
 from src.cmd_types import *
@@ -19,10 +20,12 @@ def start_app(app: str):
 
 
 def get_commands():
-    commands = []
+    pythoncom.CoInitialize()
 
+    commands = []
     commands += get_prog_commands()
 
+    pythoncom.CoUninitialize()
     return commands
 
 
@@ -64,7 +67,7 @@ def get_prog_commands():
         cmds = []
 
         for shortcut in unique_shortcuts:
-            print(shortcut)
+            # simple_print(shortcut)
 
             # Get icon
             icon_path = ""
@@ -76,7 +79,7 @@ def get_prog_commands():
             dest_path, success = load_icon_from_resource_windows(
                 icon_path, shortcut["name"]
             )
-            print(icon_path)
+            # simple_print(icon_path)
 
             remote_icon_path = os.path.join("/", "icons", "default_prog_windows.svg")
             if success:
@@ -154,8 +157,6 @@ def list_shortcuts_windows(directory):
                 # Recursively search in directories
                 out = out + list_shortcuts_windows(full_path)
             elif item.lower().endswith(".lnk") or item.lower().endswith(".url"):
-                name = item[:-4]
-
                 icon = ""  # If empty, means we extract from executable
 
                 if item.lower().endswith(".lnk"):
@@ -174,6 +175,14 @@ def list_shortcuts_windows(directory):
                     if "iconfile" in data:
                         icon = data["iconfile"]
 
+                name = item[:-4].encode("utf-8", "replace").decode("utf-8")
+
                 out += [{"name": name, "path": real_path, "icon": icon}]
 
     return out
+
+
+def simple_print(str: str):
+    # Sanitizes to ascii first
+    str = str.encode("ascii", "ignore").decode("ascii")
+    print(str)
