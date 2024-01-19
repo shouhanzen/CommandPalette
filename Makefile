@@ -1,4 +1,4 @@
-.PHONY: start_dev backend frontend build create_venv
+.PHONY: start_dev backend frontend build create_venv frontend_controls_backend
 
 BACKEND_PATH = backend
 FRONTEND_PATH = frontend
@@ -27,3 +27,11 @@ build:
 	@rm -rf dist && \
 	cp -r $(FRONTEND_PATH)/dist dist
 	@echo "Build complete."
+
+frontend_controls_backend:
+	@echo "Building backend"
+	@cd $(BACKEND_PATH) && \
+	make onefolder
+	@echo "Running frontend"
+	@cd $(FRONTEND_PATH) && \
+	npm run dev -- --spawn-backend
