@@ -78,23 +78,18 @@ function createWindow() {
   win.maximize();
 }
 
-function tryStartBackend(win) {
+async function tryStartBackend(win) {
   log.info("Starting backend");
 
   let portUsed = 8000;
 
-  let packaged = app.isPackaged;
-  packaged = true; // Force packaged mode
+  // Check if "spawn-backend" argument was passed
+  let spawn_backend = process.argv.includes("--spawn-backend") || app.isPackaged;
+  if (spawn_backend) {
 
-  if (packaged) {
+    log.info ("Spawning backend, using portfinder to find open port");
 
-    log.info ("Running in packaged mode, using portfinder to find open port");
-
-    portfinder.getPort(async (err, port) => {
-      if (err) {
-        console.error("Error finding open port:", err);
-        return;
-      }
+    await portfinder.getPortPromise().then((port) => {
       portUsed = port;
 
       // Construct the full path to the executable
@@ -102,7 +97,7 @@ function tryStartBackend(win) {
       let backend_executable = "backend_0p1.exe";
 
       if (process.platform == "darwin")
-        backend_executable = "backend_0p1";
+        backend_executable = path.join(".", "backend_0p1");
 
       let backendPath = path.join(backend_executable); // Use double backslashes for Windows paths
 
@@ -147,7 +142,9 @@ function tryStartBackend(win) {
 
       log.info(`Backend process PID: ${backendProcess.pid}`)
 
-    })
+    }).catch((error) => {
+      log.error(`Error finding open port: ${error}`);
+    });
   }
 
   // We are in dev mode, use spawn

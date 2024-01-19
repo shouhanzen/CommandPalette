@@ -2,7 +2,6 @@ import subprocess
 import platform
 import json
 import os
-import src.extract_icon as extract_icon
 import configparser
 import shutil
 
@@ -98,11 +97,17 @@ def get_prog_commands():
 
         pythoncom.CoUninitialize()
         return cmds
+    if platform.system() == "MacOS":
+        return []
     else:
+        print("Unsupported platform: " + platform.system())
+        return []
         raise NotImplementedError
 
 
 def load_icon_from_resource_windows(path, fname):
+    import src.extract_icon as extract_icon
+
     success = False
     dest_path = ""
     if path.endswith(".exe"):
