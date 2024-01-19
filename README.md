@@ -15,7 +15,12 @@ As of right now, Palette can:
 
 ## Controls
 
-`Ctrl+Shift+Alt+P` opens and hides the Palette \
+```Bash
+# Opening and Hiding the Palette:
+Ctrl+Shift+Alt+P (Windows)
+Option+Shift+P (MacOS)
+```
+
 `Enter` executes the highlighted command \
 `Tab` tabs through the available commads \
 `Esc` hides the Palette \
