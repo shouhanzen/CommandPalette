@@ -34,4 +34,4 @@ frontend_controls_backend:
 	make onefolder
 	@echo "Running frontend"
 	@cd $(FRONTEND_PATH) && \
-	npm run dev -- --spawn-backend
+	source go.sh --spawn-backend
