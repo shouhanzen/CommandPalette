@@ -4,7 +4,7 @@ from typing import List, Callable
 
 class Command(BaseModel):
     title: str
-    description: str
+    description: str = ""
     command: Callable = None
     tags: List[str] = []
     closes_palette: bool = True
