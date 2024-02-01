@@ -57,13 +57,19 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+# Commands probably shouldn't be functional and ought to be cached.
+cached_commands = None
 
 # Define a route to return the commands
 @app.get("/commands")
 def get_commands():
+    global cached_commands
+    
     # Build simplified objects
     serializable_commands = []
-    for command in build_commands_list().commands:
+    cached_commands = build_commands_list()
+    
+    for command in cached_commands.commands:
         serializable_commands.append(SerializableCommand(**command.dict()))
 
     return serializable_commands
@@ -71,9 +77,16 @@ def get_commands():
 
 @app.post("/run-command")
 def run_command(command: SerializableCommand):
+    global cached_commands
+    
     print(f"Running command: {command.title}")
+    
+    print(cached_commands)
+    
+    if cached_commands is None:
+        cached_commands = build_commands_list()
 
-    for c in build_commands_list().commands:
+    for c in cached_commands.commands:
         if c.title == command.title:
             c.command()
             return {"message": "Command executed successfully"}
