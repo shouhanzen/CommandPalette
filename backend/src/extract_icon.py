@@ -103,7 +103,7 @@ def extract_icon(filename: str, size: IconSize) -> Image:
         byref(hicon) if size == IconSize.SMALL else None,
         1,
     )
-    print(extracted_icons)
+    # print(extracted_icons)
     if extracted_icons != 1:
         raise ctypes.WinError()
 

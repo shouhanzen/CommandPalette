@@ -45,6 +45,7 @@ const CommandPalette = () => {
   // Fetch commands on mount
   useEffect(() => {
     fetchCommands();
+    console.log("Fetching commands");
 
     // Set last used list
     window.electron.retrieveMRU().then((mru) => {
@@ -65,6 +66,16 @@ const CommandPalette = () => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         window.electron.minimizeApp();
+        return;
+      }
+
+      if (event.ctrlKey && event.key === "r") {
+        event.preventDefault();
+
+        // Reload page
+        window.location.reload();
+
+        console.log("Reloading page");
         return;
       }
 
@@ -134,13 +145,6 @@ const CommandPalette = () => {
           onKeyUp={(event) => {
             if (event.key === "Enter" && filteredCommands.length > 0) {
               runCommand(filteredCommands[0]);
-            }
-
-            if (event.ctrlKey && event.key === "r") {
-              event.preventDefault();
-
-              // Reload page
-              window.location.reload();
             }
           }}
           onKeyDown={(event) => {

@@ -113,7 +113,7 @@ def load_icon_from_resource_windows(path, fname):
     if path.endswith(".exe"):
         try:
             icon = extract_icon.extract_icon(path, extract_icon.IconSize.LARGE)
-            print(icon)
+            # print(icon)
 
             # Store icon in public/icons/programs
             dest_path = os.path.join(
@@ -122,7 +122,7 @@ def load_icon_from_resource_windows(path, fname):
             
             icon.save(dest_path)
 
-            print("Saving icon for " + path + " to " + dest_path + ".")
+            # print("Saving icon for " + path + " to " + dest_path + ".")
             success = True
 
         except Exception as e:
@@ -176,7 +176,7 @@ def list_shortcuts_windows(directory):
                     config.read(full_path)
 
                     data = dict(config.items("InternetShortcut"))
-                    print(data)
+                    # print(data)
                     real_path = data["url"]
 
                     if "iconfile" in data:

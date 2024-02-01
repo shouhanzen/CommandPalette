@@ -2,6 +2,7 @@ import win32gui
 import win32con
 from src.cmd_types import *
 
+import logging
 
 def get_window_titles():
     titles = []
@@ -16,6 +17,9 @@ def get_window_titles():
 def focus_window(hwnd):
     win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
     win32gui.SetForegroundWindow(hwnd)
+    
+    logging.debug(f"Focused window with hwnd {hwnd}")
+    
 
 def get_commands():
     commands = []
