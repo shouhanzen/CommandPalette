@@ -119,6 +119,7 @@ def load_icon_from_resource_windows(path, fname):
             dest_path = os.path.join(
                 os.getcwd(), "public", "icons", "programs", fname + ".ico"
             )
+            
             icon.save(dest_path)
 
             print("Saving icon for " + path + " to " + dest_path + ".")

@@ -6,6 +6,7 @@ from src.cmd_types import *
 import src.web_interface as web_interface
 import src.cmd_interface as cmd_interface
 import src.apps_interface as apps_interface
+import src.open_interface as open_interface
 
 import uvicorn
 import subprocess
@@ -21,7 +22,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 base_commands = CommandList(commands=[])
 
-contributors = [web_interface, spotify_core, cmd_interface, apps_interface]
+contributors = [web_interface, spotify_core, cmd_interface, apps_interface, open_interface]
 
 
 def build_commands_list():
