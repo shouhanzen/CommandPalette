@@ -60,7 +60,7 @@ function commandToEntry(
           />
         </span>
       ) : null}
-      <strong>{command.title}</strong>
+      <strong className="command-title">{command.title}</strong>
       <p className="command-description">{command.description}</p>
     </li>
   );

@@ -100,11 +100,24 @@ body {
   background-color: #333; /* Change this to the color you want */
 }
 
+.command-title {
+  white-space: nowrap;
+  flex-shrink: 1;
+  margin-right: 20px;
+}
+
 .command-description {
   margin-left: auto;
   align-self: flex-end;
 
   font-size: small;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  flex-shrink: 1000;
+  min-width: none;
 }
 
 .highlighted {
@@ -155,4 +168,6 @@ body {
   height: 20px;
   margin-right: 10px;
   object-fit: contain;
+
+  flex-shrink: 0;
 }
