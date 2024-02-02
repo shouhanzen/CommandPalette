@@ -8,9 +8,11 @@ import shutil
 from PIL import Image
 from src.cmd_types import *
 
+from urllib.parse import urlparse
 
 def start_app(app: str):
     if platform.system() == "Windows":
+        
         command = f'start "" "{app}"'
         subprocess.Popen(command, shell=True)
     else:
@@ -87,21 +89,17 @@ def get_prog_commands():
                 )
             
             disabled = False
-            description = ""
-            if not os.path.exists(shortcut["path"]):
-                disabled = True
-                description = "File not found"
+            description = shortcut["path"]
             
-            elif "Uninstall" in shortcut["name"]:
+            if "Uninstall" in shortcut["name"]:
                 disabled = True
-                description = "Uninstall shortcut"
             
 
             cmds.append(
                 Command(
                     title=f"Run: {shortcut['name']}",
                     command=lambda path=shortcut["path"]: start_app(path),
-                    description="",
+                    description=description,
                     icon=remote_icon_path,
                     disabled=disabled
                 )
