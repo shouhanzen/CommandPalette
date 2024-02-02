@@ -1,6 +1,8 @@
 import win32gui
 import win32con
 from src.cmd_types import *
+import win32gui, win32com.client
+
 
 import logging
 
@@ -15,10 +17,16 @@ def get_window_titles():
     return titles
 
 def focus_window(hwnd):
-    win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+    logging.debug(f"Focusing window with hwnd {hwnd}")
+    
+    # Only do this if the window is minimized
+    if win32gui.IsIconic(hwnd):
+        win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+    
+    shell = win32com.client.Dispatch("WScript.Shell")
+    shell.SendKeys('%')
     win32gui.SetForegroundWindow(hwnd)
     
-    logging.debug(f"Focused window with hwnd {hwnd}")
     
 
 def get_commands():
