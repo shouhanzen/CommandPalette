@@ -5,6 +5,8 @@ import CommandList from "../components/CommandList";
 import SearchBar from "../components/SearchBar";
 import { getTermOverlap, compareCommands } from "../lib/commands";
 
+import "./styles.scss";
+
 const CommandPalette = () => {
   const [commands, setCommands] = useState([] as Command[]);
   const [isLoading, setIsLoading] = useState(true);
