@@ -43,6 +43,7 @@ body {
   color: #fff;
   border-radius: 5px;
   overflow-y: auto;
+  overflow-x: hidden;
 
   outline: none;
   box-shadow: none;
