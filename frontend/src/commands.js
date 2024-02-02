@@ -22,6 +22,7 @@ const commands_data = [
       closes_palette: false, 
       tags: ["MRU"],
       icon: "palette.svg",
+      disabled: false,
     },
     { 
       title: "Quit", 
@@ -31,6 +32,7 @@ const commands_data = [
       closes_palette: false, 
       tags: ["Exit", "Leave"],
       icon: "palette.svg",
+      disabled: false,
     },
 ];
 

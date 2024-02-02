@@ -16,4 +16,5 @@ interface Command {
     title: string;
     description: string;
     tags: string[];
+    disabled: boolean;
   }

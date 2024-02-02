@@ -85,6 +85,17 @@ def get_prog_commands():
                 remote_icon_path = dest_path.replace(
                     os.path.join(os.getcwd(), "public"), ""
                 )
+            
+            disabled = False
+            description = ""
+            if not os.path.exists(shortcut["path"]):
+                disabled = True
+                description = "File not found"
+            
+            elif "Uninstall" in shortcut["name"]:
+                disabled = True
+                description = "Uninstall shortcut"
+            
 
             cmds.append(
                 Command(
@@ -92,6 +103,7 @@ def get_prog_commands():
                     command=lambda path=shortcut["path"]: start_app(path),
                     description="",
                     icon=remote_icon_path,
+                    disabled=disabled
                 )
             )
 

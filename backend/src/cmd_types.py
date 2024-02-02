@@ -9,6 +9,7 @@ class Command(BaseModel):
     tags: List[str] = []
     closes_palette: bool = True
     icon: str = ""
+    disabled: bool = False # Determines whether the command is greyed and unselectable out in the UI
 
 
 class SerializableCommand(BaseModel):
@@ -17,6 +18,7 @@ class SerializableCommand(BaseModel):
     tags: List[str] = []
     closes_palette: bool = True
     icon: str = ""
+    disabled: bool = False
 
 
 class CommandList:
