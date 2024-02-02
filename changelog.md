@@ -1,5 +1,6 @@
 v0.1.16:
 
+- Command caching
 - Refactored React frontend to be more modular
 - Fixed opening windows on Windows
 - Added option to disable commands
