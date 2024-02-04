@@ -7,10 +7,12 @@ const commands = require('./commands');
 const cmdMRU = require('./cmd_mru');
 const config = require('./config');
 const { screen } = require('electron');
+const { registerShortcut, unregisterShortcut } = require('./shortcuts');
 
 
 const portfinder = require('portfinder');
 const { exec, spawn, execFile } = require('child_process');
+const Logger = require('electron-log');
 
 // Set log level
 log.initialize({ preload: true });
@@ -23,9 +25,9 @@ process.on('uncaughtException', (error) => {
 
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
-const SHORTCUT = () => {
-  if (process.platform == "win32") return config.data.shortcuts.win_open;
-  if (process.platform == "darwin") return config.data.shortcuts.mac_open;
+const SHORTCUT = (data) => {
+  if (process.platform == "win32") return data.shortcuts.win_open;
+  if (process.platform == "darwin") return data.shortcuts.mac_open;
   return 'Unknown OS';
 };
 let backendProcess = null;
@@ -182,16 +184,18 @@ app.whenReady().then(() => {
   createWindow()
 
   // Register a global shortcut listener.
-  const ret = globalShortcut.register(SHORTCUT(), () => {
+  registerShortcut(SHORTCUT(config.getData()), () => {
     toggleWindow();
   });
 
-  if (!ret) {
-    console.log('Registration failed');
-  }
+  config.onConfigChange((data, new_data) => {
+    log.info("Shortcut changed");
 
-  // Check whether a shortcut is registered.
-  console.log(globalShortcut.isRegistered(SHORTCUT()));
+    unregisterShortcut(SHORTCUT(data));
+    registerShortcut(SHORTCUT(new_data), () => {
+      toggleWindow();
+    });
+  });
 });
 
 // Quit when all windows are closed.
@@ -259,6 +263,10 @@ ipcMain.on('run-command', async (event, command) => {
 // Pings a series of command contributors
 ipcMain.handle('get-commands', async () => {
   return commands.get_commands();
+});
+
+ipcMain.on('save-settings', (event, settings) => {
+  config.saveConfig(settings);
 });
 
 function resetSearch(term) {

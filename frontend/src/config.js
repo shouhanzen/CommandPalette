@@ -27,5 +27,25 @@ function loadConfig() {
   }
 }
 
+function saveConfig(new_data) {
+  const configPath = path.join(app.getPath('userData'), 'config.json');
+  fs.writeFileSync(configPath, JSON.stringify(new_data));
+
+  // Notify listeners that the config has changed
+  configChangeListeners.forEach(func => func(data, new_data));
+
+  console.log("Saved config");
+  data = new_data
+}
+
 data = loadConfig();
-module.exports = { data };
+function getData() {
+  return data;
+}
+
+configChangeListeners = [];
+function onConfigChange(func) {
+  configChangeListeners.push(func);
+}
+
+module.exports = { getData, saveConfig, onConfigChange };

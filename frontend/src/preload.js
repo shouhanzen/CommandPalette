@@ -12,4 +12,5 @@ contextBridge.exposeInMainWorld('electron', {
   retrieveMRU: () => ipcRenderer.invoke('retrieve-mru'),
   onMRUChange: (func) => ipcRenderer.on('mru-change', func),
   onSettingsOpen: (func) => ipcRenderer.on('open-settings', func),
+  saveSettings: (settings) => ipcRenderer.send('save-settings', settings),
 });

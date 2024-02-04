@@ -16,3 +16,51 @@
     width: fit-content;
     margin-top: 20px;
 }
+
+.recording-overlay {
+    // Make fill screen
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background-color: rgba(0, 0, 0, 0.235);
+
+    // Force elements into center
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    padding-bottom: 20%;
+}
+
+.recording-box {
+    padding: 20px;
+    background-color: #1e1e1e;
+    color: #fff;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.shortcut-section > * {
+    margin-right: 20px;
+}
+
+.shortcut-key-comb {
+    padding: 10px;
+    color: #fff;
+    background-color: #333;
+    border: none;
+    border-radius: 5px;
+}
+
+.highlight-on-hover:hover {
+    background-color: #444;
+
+    // Mouse icon
+    cursor: pointer;
+}
