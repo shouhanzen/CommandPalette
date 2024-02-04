@@ -6,6 +6,7 @@ import win32gui, win32com.client
 
 import logging
 
+
 def get_window_titles():
     titles = []
 
@@ -16,24 +17,29 @@ def get_window_titles():
     win32gui.EnumWindows(enum_windows_proc, None)
     return titles
 
+
 def focus_window(hwnd):
     logging.debug(f"Focusing window with hwnd {hwnd}")
-    
+
     # Only do this if the window is minimized
     if win32gui.IsIconic(hwnd):
         win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
-    
+
     shell = win32com.client.Dispatch("WScript.Shell")
-    shell.SendKeys('%')
+    shell.SendKeys("%")
     win32gui.SetForegroundWindow(hwnd)
-    
-    
+
+
+def close_window(hwnd):
+    logging.debug(f"Closing window with hwnd {hwnd}")
+    win32gui.PostMessage(hwnd, win32con.WM_CLOSE, 0, 0)
+
 
 def get_commands():
     commands = []
-    
+
     windows = get_window_titles()
-    
+
     # If there are duplicate titles, rename with number added
     windows_processed = []
     titles = []
@@ -45,14 +51,18 @@ def get_commands():
             title = title + f" ({j})"
         titles.append(title)
         windows_processed.append((hwnd, title))
-    
+
     for hwnd, title in windows_processed:
-        commands.append(Command(
-            title="Open: " + title,
-            command=lambda x=hwnd: focus_window(x)
-        ))
+        commands.append(
+            Command(title="Open: " + title, command=lambda x=hwnd: focus_window(x))
+        )
+
+        commands.append(
+            Command(title="Close: " + title, command=lambda x=hwnd: close_window(x))
+        )
 
     return commands
+
 
 def main():
     windows = get_window_titles()
@@ -68,6 +78,7 @@ def main():
             print("Invalid selection.")
     except ValueError:
         print("Please enter a number.")
+
 
 if __name__ == "__main__":
     main()
