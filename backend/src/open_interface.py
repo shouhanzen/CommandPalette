@@ -1,5 +1,7 @@
 import win32gui
 import win32con
+import win32api
+import win32process
 from src.cmd_types import *
 import win32gui, win32com.client
 
@@ -35,6 +37,27 @@ def close_window(hwnd):
     win32gui.PostMessage(hwnd, win32con.WM_CLOSE, 0, 0)
 
 
+def get_executable_path(hwnd):
+    # Get the process ID associated with the window handle
+    _, pid = win32process.GetWindowThreadProcessId(hwnd)
+    process_handle = None
+
+    # Open the process and get its executable path
+    try:
+        process_handle = win32api.OpenProcess(
+            win32con.PROCESS_QUERY_INFORMATION | win32con.PROCESS_VM_READ, False, pid
+        )
+        executable_path = win32process.GetModuleFileNameEx(process_handle, 0)
+    except Exception as e:
+        print(f"Error getting executable path: {e}")
+        executable_path = None
+    finally:
+        if process_handle:
+            win32api.CloseHandle(process_handle)
+
+    return executable_path
+
+
 def get_commands():
     commands = []
 
@@ -53,12 +76,26 @@ def get_commands():
         windows_processed.append((hwnd, title))
 
     for hwnd, title in windows_processed:
+
+        # Get executable path
+        executable_path = get_executable_path(hwnd)
+        if executable_path is None:
+            executable_path = "Unknown"
+
         commands.append(
-            Command(title="Open: " + title, command=lambda x=hwnd: focus_window(x))
+            Command(
+                title="Open: " + title,
+                description=executable_path,
+                command=lambda x=hwnd: focus_window(x),
+            )
         )
 
         commands.append(
-            Command(title="Close: " + title, command=lambda x=hwnd: close_window(x))
+            Command(
+                title="Close: " + title,
+                description=executable_path,
+                command=lambda x=hwnd: close_window(x),
+            )
         )
 
     return commands

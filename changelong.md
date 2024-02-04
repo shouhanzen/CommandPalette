@@ -7,3 +7,4 @@ v0.1.17:
 - Added app icon
 - Can now click outside of box to hide Palette
 - Added close window command
+- Added executable descriptors for open/close window
