@@ -18,12 +18,20 @@ from src.spotify.core import router as spotify_router
 import src.spotify.core as spotify_core
 
 import logging
+import threading
 
 logging.basicConfig(level=logging.DEBUG)
 
 base_commands = CommandList(commands=[])
 
-contributors = [web_interface, spotify_core, cmd_interface, apps_interface, open_interface, test_interface]
+contributors = [
+    web_interface,
+    spotify_core,
+    cmd_interface,
+    apps_interface,
+    open_interface,
+    test_interface,
+]
 
 
 def build_commands_list():
@@ -61,17 +69,24 @@ app.add_middleware(
 # Commands probably shouldn't be functional and ought to be cached.
 cached_commands = None
 
+command_lock = threading.Lock()
+
+
 # Define a route to return the commands
 @app.get("/commands")
 def get_commands():
     global cached_commands
-    
+
+    command_lock.acquire()
+
     # Build simplified objects
     serializable_commands = []
     cached_commands = build_commands_list()
-    
+
     for command in cached_commands.commands:
         serializable_commands.append(SerializableCommand(**command.dict()))
+
+    command_lock.release()
 
     return serializable_commands
 
@@ -79,11 +94,11 @@ def get_commands():
 @app.post("/run-command")
 def run_command(command: SerializableCommand):
     global cached_commands
-    
+
     print(f"Running command: {command.title}")
-    
+
     print(cached_commands)
-    
+
     if cached_commands is None:
         cached_commands = build_commands_list()
 

@@ -2,11 +2,15 @@ import win32gui
 import win32con
 import win32api
 import win32process
+import win32ui
 from src.cmd_types import *
 import win32gui, win32com.client
+from PIL import Image
+import os
 
 
 import logging
+import threading
 
 
 def get_window_titles():
@@ -58,6 +62,111 @@ def get_executable_path(hwnd):
     return executable_path
 
 
+import ctypes
+from ctypes.wintypes import DWORD, LONG, WORD
+
+
+# Define BITMAP structure
+class BITMAP(ctypes.Structure):
+    _fields_ = [
+        ("bmType", LONG),
+        ("bmWidth", LONG),
+        ("bmHeight", LONG),
+        ("bmWidthBytes", LONG),
+        ("bmPlanes", WORD),
+        ("bmBitsPixel", WORD),
+        ("bmBits", ctypes.POINTER(DWORD)),
+    ]
+
+
+def get_icon(hwnd, large_icon=False):
+    # Define the icon size
+    if large_icon:
+        size_flag = win32con.ICON_BIG
+    else:
+        size_flag = win32con.ICON_SMALL
+
+    # Try to get the window icon
+    try:
+        res, hicon = win32gui.SendMessageTimeout(
+            hwnd, win32con.WM_GETICON, size_flag, 0, 0, 1000
+        )
+    except Exception as e:
+        logging.error(f"Error getting icon: {e}")
+        return None
+
+    logging.debug(f"Icon handle: {hicon}")
+
+    # If the window has no icon, get the icon from the application
+    if hicon == 0:
+        hicon = win32gui.GetClassLong(hwnd, win32con.GCL_HICON)
+
+    # If a large icon is not found, try to get the small icon
+    if hicon == 0 and large_icon:
+        hicon = win32gui.SendMessage(hwnd, win32con.WM_GETICON, win32con.ICON_SMALL, 0)
+
+    if hicon == 0:
+        hicon = win32gui.GetClassLong(hwnd, win32con.GCL_HICONSM)
+
+    # If we have an icon handle, extract the icon
+    if hicon != 0:
+        hdc = win32ui.CreateDCFromHandle(win32gui.GetDC(hwnd))
+        hbmp = win32ui.CreateBitmap()
+        logging.debug(f"Getting icon for hwnd {hwnd}")
+
+        try:
+            icon_info = win32gui.GetIconInfo(hicon)
+            logging.debug(f"Icon info: {icon_info}")
+            logging.debug(f"Icon info[4]: {icon_info[4]}")
+
+            bitmap = BITMAP()
+            ctype_handle = ctypes.wintypes.HANDLE(int(icon_info[4]))
+            ctypes.windll.gdi32.GetObjectW(
+                ctype_handle, ctypes.sizeof(bitmap), ctypes.byref(bitmap)
+            )
+
+            logging.debug(f"Bitmap: {bitmap.bmWidth}x{bitmap.bmHeight}")
+
+            hbmp.CreateCompatibleBitmap(hdc, bitmap.bmWidth, bitmap.bmHeight)
+            hdc = hdc.CreateCompatibleDC()
+            hdc.SelectObject(hbmp)
+
+            hdc.DrawIcon((0, 0), hicon)
+            bmpinfo = hbmp.GetInfo()
+            bmpstr = hbmp.GetBitmapBits(True)
+
+            img = Image.frombuffer(
+                "RGBA",
+                (bmpinfo["bmWidth"], bmpinfo["bmHeight"]),
+                bmpstr,
+                "raw",
+                "BGRA",
+                0,
+                1,
+            )
+
+            logging.debug(img)
+
+            return img
+        finally:
+            try:
+                win32gui.DeleteObject(hbmp.GetHandle())
+            except Exception as e:
+                logging.error(f"Error deleting object: {e}")
+
+            try:
+                win32gui.DeleteObject(hicon)
+            except Exception as e:
+                logging.error(f"Error deleting object: {e}")
+
+            try:
+                hdc.DeleteDC()
+            except Exception as e:
+                logging.error(f"Error deleting object: {e}")
+    else:
+        return None
+
+
 def get_commands():
     commands = []
 
@@ -75,18 +184,48 @@ def get_commands():
         titles.append(title)
         windows_processed.append((hwnd, title))
 
+    # Clean out the icons directory
+    icon_dir = os.path.join(os.getcwd(), "public", "icons", "windows")
+    for f in os.listdir(icon_dir):
+        os.remove(os.path.join(icon_dir, f))
+
     for hwnd, title in windows_processed:
+
+        print(f"Processing window: {title}")
 
         # Get executable path
         executable_path = get_executable_path(hwnd)
         if executable_path is None:
             executable_path = "Unknown"
 
+        print(f"Executable path: {executable_path}")
+
+        icon = get_icon(hwnd, large_icon=True)
+
+        # Save icon to ./public/icons/windows
+        # Hash the title to avoid issues with special characters
+        remote_icon_path = ""
+        title_hash = str(hash(title))
+        print(title_hash)
+
+        if icon:
+            save_path = os.path.join(
+                os.getcwd(), "public", "icons", "windows", title_hash + ".png"
+            )
+            icon.save(save_path, "PNG")
+
+            remote_icon_path = save_path.replace(
+                os.path.join(os.getcwd(), "public"), ""
+            )
+
+        print("Command title: " + title)
+
         commands.append(
             Command(
                 title="Open: " + title,
                 description=executable_path,
                 command=lambda x=hwnd: focus_window(x),
+                icon=remote_icon_path,
             )
         )
 
@@ -95,6 +234,7 @@ def get_commands():
                 title="Close: " + title,
                 description=executable_path,
                 command=lambda x=hwnd: close_window(x),
+                icon=remote_icon_path,
             )
         )
 
