@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import "./background.scss";
+import KeyPressListener from "@/components/KeyPressListener";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <KeyPressListener></KeyPressListener>
         <div className="base"></div>
         <div className="background gradient"></div>
         {children}

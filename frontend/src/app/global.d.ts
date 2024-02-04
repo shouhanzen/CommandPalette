@@ -7,6 +7,7 @@ interface Window {
         onNewCommands: (func: Function) => void;
         retrieveMRU: () => Promise<any>;
         onMRUChange: (func: Function) => void;
+        onSettingsChange: (func: Function) => void;
         
         // Define other methods or properties you need`
     };

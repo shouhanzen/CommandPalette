@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import CommandList from "../components/CommandList";
 import SearchBar from "../components/SearchBar";
 import { getTermOverlap, compareCommands } from "../lib/commands";
+import { useRouter } from "next/navigation";
 
 import "./styles.scss";
 
@@ -16,6 +17,7 @@ const CommandPalette = () => {
   const searchRef = useRef(null as HTMLInputElement | null);
 
   const [lastUsedList, setLastUsedList] = useState([] as string[]);
+  const router = useRouter();
 
   function setErrorGuarded(err: unknown) {
     if (err instanceof Error) {
@@ -64,6 +66,15 @@ const CommandPalette = () => {
       console.log("MRU changed: ", mru);
 
       setLastUsedList(mru);
+    });
+
+    // On settings open
+    window.electron.onSettingsOpen((event: Event) => {
+      console.log("Settings opened");
+
+      // Go to settings page
+      // window.location.href = "/settings";
+      router.push("/settings");
     });
   }, []);
 
@@ -128,11 +139,6 @@ function KeyCaptureEffect(
   searchRef: React.MutableRefObject<HTMLInputElement | null>
 ) {
   const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      window.electron.minimizeApp();
-      return;
-    }
-
     if (event.ctrlKey && event.key === "r") {
       event.preventDefault();
 

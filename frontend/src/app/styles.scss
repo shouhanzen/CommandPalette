@@ -171,3 +171,18 @@ body {
 
   flex-shrink: 0;
 }
+
+h1 {
+  font-size: 1.5em;
+  margin: 0;
+}
+
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #333;
+  color: #fff;
+  margin: 10px 5px;
+}

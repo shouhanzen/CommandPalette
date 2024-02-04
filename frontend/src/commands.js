@@ -13,6 +13,11 @@ function quit_prog(win, app) {
     app.quit();
 }
 
+function open_settings(win, app) {
+    console.log("Opening settings");
+    win.webContents.send('open-settings');
+}
+
 const commands_data = [
     { 
       title: "Clear Command History", 
@@ -31,6 +36,16 @@ const commands_data = [
       issuer: "electron", 
       closes_palette: false, 
       tags: ["Exit", "Leave"],
+      icon: "palette.svg",
+      disabled: false,
+    },
+    { 
+      title: "Settings", 
+      description: "Opens Settings", 
+      command: open_settings, 
+      issuer: "electron", 
+      closes_palette: false, 
+      tags: ["Options", "Configuration"],
       icon: "palette.svg",
       disabled: false,
     },
