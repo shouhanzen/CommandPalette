@@ -5,6 +5,7 @@ const log = require('electron-log');
 const path = require('path');
 const commands = require('./commands');
 const cmdMRU = require('./cmd_mru');
+const config = require('./config');
 const { screen } = require('electron');
 
 
@@ -23,8 +24,8 @@ process.on('uncaughtException', (error) => {
 // Keep a global reference of the window object to avoid it being garbage collected.
 let win;
 const SHORTCUT = () => {
-  if (process.platform == "win32") return 'Ctrl+Shift+Alt+P';
-  if (process.platform == "darwin") return 'Option+Shift+P';
+  if (process.platform == "win32") return config.data.shortcuts.win_open;
+  if (process.platform == "darwin") return config.data.shortcuts.mac_open;
   return 'Unknown OS';
 };
 let backendProcess = null;
@@ -145,33 +146,6 @@ async function tryStartBackend(win) {
     }).catch((error) => {
       log.error(`Error finding open port: ${error}`);
     });
-  }
-
-  // We are in dev mode, use spawn
-  else {
-    // Yeah I can't figure this out
-    log.debug("INFO: Running in dev mode, please spawn uvicorn server manually")
-
-    // const root = path.join(app.getAppPath(), "..", "backend");
-    // backendPath = path.join(root, "entry.py"); // Use double backslashes for Windows paths
-    // const command = `uvicorn`
-    // const args = [`src.main:app`, `--port`, port, `--reload`];
-
-    // // Use spawn to run the backend executable
-    // backendProcess = spawn(command, args, { shell: true, cwd: root  });
-
-    // // Log the stdout and stderr
-    // backendProcess.stdout.on('data', (data) => {
-    //   log.info(`stdout: ${data}`);
-    // });
-
-    // backendProcess.stderr.on('data', (data) => {
-    //   log.error(`stderr: ${data}`);
-    // });
-
-    // backendProcess.on('close', (code) => {
-    //   log.info(`Backend process exited with code ${code}`);
-    // });
   }
 
   // Add backend as issuer
