@@ -19,7 +19,7 @@ const SettingsPage: React.FC = () => {
     {
       name: "Open Command Palette",
       id: "win_open",
-      keys: new Set<string>(["Control", "Shift", "P"]),
+      keys: new Set<string>([]),
     },
   ] as Shortcut[]);
 
@@ -27,6 +27,31 @@ const SettingsPage: React.FC = () => {
 
   const router = useRouter();
   const [keys, { start, stop, isRecording }] = useRecordHotkeys();
+
+  useEffect(() => {
+    // Here you would fetch the shortcuts from your backend or local storage
+    const fetchSettings = async () => {
+      let settings = await window.electron.getSettings();
+      console.log("Settings loaded: ", settings);
+
+      if (settings) {
+        let newShortcuts = [...shortcuts];
+
+        // Match ids from settings to shortcuts
+        for (let i = 0; i < newShortcuts.length; i++) {
+          if (settings.shortcuts[newShortcuts[i].id]) {
+            let keyComb = settings.shortcuts[newShortcuts[i].id].split("+");
+            let keyCombSet = new Set<string>(keyComb);
+            newShortcuts[i].keys = keyCombSet;
+          }
+        }
+
+        setShortcuts(newShortcuts);
+      }
+    };
+
+    fetchSettings();
+  }, []);
 
   const saveSettings = () => {
     // Here you would save the shortcut to your backend or local storage
@@ -56,18 +81,19 @@ const SettingsPage: React.FC = () => {
 
   function stopRecording() {
     // Here you would update the shortcut in the state
+    let std_comb = standardizeKeyComb(keys);
 
-    console.log("Key combination discovered: " + keys);
+    console.log("Key combination discovered: " + std_comb);
 
     let newShortcuts = [...shortcuts];
-    newShortcuts[editingShortcut].keys = keys;
+    newShortcuts[editingShortcut].keys = std_comb;
     setShortcuts(newShortcuts);
 
     setEditingShortcut(-1);
     stop();
   }
 
-  function keyCombToString(keyComb: Set<string>): string {
+  function standardizeKeyComb(keyComb: Set<string>): Set<string> {
     let keyCombArr = Array.from(keyComb);
 
     for (let i = 0; i < keyCombArr.length; i++) {
@@ -85,7 +111,12 @@ const SettingsPage: React.FC = () => {
       }
     }
 
-    return keyCombArr.join("+");
+    return new Set<string>(keyCombArr);
+  }
+
+  function keyCombToString(keyComb: Set<string>): string {
+    let arr = Array.from(standardizeKeyComb(keyComb));
+    return arr.join("+");
   }
 
   return (

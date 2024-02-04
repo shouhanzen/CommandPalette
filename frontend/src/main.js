@@ -269,6 +269,10 @@ ipcMain.on('save-settings', (event, settings) => {
   config.saveConfig(settings);
 });
 
+ipcMain.handle('get-settings', async () => {
+  return config.getData();
+});
+
 function resetSearch(term) {
   win.webContents.send('reset-search', term);
 }

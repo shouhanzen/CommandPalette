@@ -9,9 +9,14 @@ interface Window {
         onMRUChange: (func: Function) => void;
         onSettingsChange: (func: Function) => void;
         saveSettings: (settings: any) => void;
+        getSettings: () => Promise<Settings>;
         
         // Define other methods or properties you need`
     };
+}
+
+interface Settings {
+    shortcuts: { [key: string]: string };
 }
 
 interface Command {
