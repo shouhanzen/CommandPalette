@@ -231,13 +231,12 @@ app.on('quit', () => {
       .then(text => log.info(text))
       .catch(error => log.error(error));
   }
+});
 
-  // Kill the backend process
-  // if (backendProcess) {
-  //   log.info("Killing backend process");
-  //   log.info("Backend process PID: " + backendProcess.pid);
-  //   backendProcess.kill();
-  // }
+app.setLoginItemSettings({
+  openAtLogin: true,
+  openAsHidden: true,
+  path: app.getPath('exe'),
 });
 
 ipcMain.on('minimize-app', () => {
