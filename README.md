@@ -2,7 +2,7 @@
 
 Using Palette, you can do anything from just your keyboard. Open websites, applications, games, control your music, and open/manage windows all from the same place, with a simple sequence of keypresses. No more wondering if Windows Start Menu supports what you want to do.
 
-Summon Palette at will with a keyboard shortcut (Ctrl-Shift-Alt-P by default). Dismiss it with any number of actions. Palette seeks to be as inobtrusive and hidden as possible. Use command tags and Palette's complex character matching features to quickly find your command in a short sequence of characters (find out more [here]([url](https://github.com/D0rkKnight/CommandPalette/blob/main/tutorials/filtering_commands.md))). I made this project in the hopes of accelerating my workflow, and I hope it can do the same for you.
+Summon Palette at will with a keyboard shortcut (Ctrl-Shift-Alt-P by default). Dismiss it with any number of actions. Palette seeks to be as inobtrusive and hidden as possible. Use command tags and Palette's complex character matching features to quickly find your command in a short sequence of characters (find out more [here](https://github.com/D0rkKnight/CommandPalette/blob/main/tutorials/filtering_commands.md)). I made this project in the hopes of accelerating my workflow, and I hope it can do the same for you.
 
 <img width="960" alt="image" src="https://github.com/D0rkKnight/CommandPalette/assets/20606858/a579acc8-c74f-4bc4-b2ef-e1199868f20c">
 
