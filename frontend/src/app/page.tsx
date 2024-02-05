@@ -5,6 +5,7 @@ import CommandList from "../components/CommandList";
 import SearchBar from "../components/SearchBar";
 import { getTermOverlap, compareCommands } from "../lib/commands";
 import { useRouter } from "next/navigation";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import "./styles.scss";
 
@@ -18,6 +19,22 @@ const CommandPalette = () => {
 
   const [lastUsedList, setLastUsedList] = useState([] as string[]);
   const router = useRouter();
+
+  useHotkeys(
+    "ctrl+r",
+    (event) => {
+      console.log("Reloading page and clearing cache");
+
+      // Clear cache
+      window.electron.invoke("clear-commands-cache", {});
+
+      // Reload page
+      window.location.reload();
+    },
+    {
+      enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
+    }
+  );
 
   function setErrorGuarded(err: unknown) {
     if (err instanceof Error) {
@@ -139,19 +156,6 @@ function KeyCaptureEffect(
   searchRef: React.MutableRefObject<HTMLInputElement | null>
 ) {
   const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.ctrlKey && event.key === "r") {
-      event.preventDefault();
-
-      // Clear cache
-      window.electron.invoke("clear-commands-cache", {});
-
-      // Reload page
-      window.location.reload();
-
-      console.log("Reloading page");
-      return;
-    }
-
     // Set focus to the search bar
     let banned_keys = [
       "Control",

@@ -10,3 +10,5 @@ v0.1.17:
 - Added executable descriptors for open/close window
 - Added icons for open/close window
 - Multithreading for backend command collection
+- Frontend command caching
+- Fixed z-index issue with loading and error messages
