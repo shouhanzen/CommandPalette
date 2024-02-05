@@ -12,3 +12,4 @@ v0.1.17:
 - Multithreading for backend command collection
 - Frontend command caching
 - Fixed z-index issue with loading and error messages
+- Fixed bug where Palette window was getting renamed to "Next JS"

@@ -79,6 +79,11 @@ function createWindow() {
     log.error(`Window error: ${error}`);
   }
 
+  // Prevent the window title from being updated
+  win.webContents.on('page-title-updated', (e) => {
+    e.preventDefault();
+  });
+
   // Maximize the window to take up the whole screen
   win.maximize();
 }
