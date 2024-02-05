@@ -8,3 +8,5 @@ v0.1.17:
 - Can now click outside of box to hide Palette
 - Added close window command
 - Added executable descriptors for open/close window
+- Added icons for open/close window
+- Multithreading for backend command collection

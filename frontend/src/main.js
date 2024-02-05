@@ -263,8 +263,12 @@ ipcMain.on('run-command', async (event, command) => {
 });
 
 // Pings a series of command contributors
-ipcMain.handle('get-commands', async () => {
-  return commands.get_commands();
+ipcMain.handle('clear-commands-cache', async () => {
+  return commands.clear_cache();
+});
+
+ipcMain.handle('get-commands-cached', async () => {
+  return commands.get_commands_cached();
 });
 
 ipcMain.on('save-settings', (event, settings) => {

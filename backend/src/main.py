@@ -9,10 +9,7 @@ import src.apps_interface as apps_interface
 import src.open_interface as open_interface
 import src.test_interface as test_interface
 
-import uvicorn
-import subprocess
-import socket
-import signal
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.spotify.core import router as spotify_router
 import src.spotify.core as spotify_core
@@ -39,17 +36,24 @@ def build_commands_list():
     for command in base_commands.commands:
         out.commands.append(command)
 
-    for contributor in contributors:
-        for command in contributor.get_commands():
-            out.commands.append(command)
+    # Use ThreadPoolExecutor to call get_commands() in parallel
+    with ThreadPoolExecutor(max_workers=len(contributors)) as executor:
+        # Submit all get_commands() functions to the executor
+        future_to_contributor = {
+            executor.submit(contributor.get_commands): contributor
+            for contributor in contributors
+        }
+
+        for future in as_completed(future_to_contributor):
+            contributor_commands = future.result()
+            out.commands.extend(contributor_commands)
 
     # Assert that command titles are unique
-    titles = []
+    titles = set()  # Use a set for O(1) lookups
     for command in out.commands:
         if command.title in titles:
             raise ValueError(f"Duplicate command title: {command.title}")
-
-        titles.append(command.title)
+        titles.add(command.title)
 
     return out
 

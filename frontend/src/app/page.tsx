@@ -31,7 +31,7 @@ const CommandPalette = () => {
 
   const fetchCommands = async () => {
     try {
-      const commands = await window.electron.invoke("get-commands", {});
+      const commands = await window.electron.invoke("get-commands-cached", {});
       console.log("Commands fetched: ", commands);
       setCommands(commands as Command[]);
     } catch (err) {
@@ -141,6 +141,9 @@ function KeyCaptureEffect(
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.ctrlKey && event.key === "r") {
       event.preventDefault();
+
+      // Clear cache
+      window.electron.invoke("clear-commands-cache", {});
 
       // Reload page
       window.location.reload();

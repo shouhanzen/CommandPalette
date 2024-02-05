@@ -95,8 +95,6 @@ def get_icon(hwnd, large_icon=False):
         logging.error(f"Error getting icon: {e}")
         return None
 
-    logging.debug(f"Icon handle: {hicon}")
-
     # If the window has no icon, get the icon from the application
     if hicon == 0:
         hicon = win32gui.GetClassLong(hwnd, win32con.GCL_HICON)
@@ -112,20 +110,15 @@ def get_icon(hwnd, large_icon=False):
     if hicon != 0:
         hdc = win32ui.CreateDCFromHandle(win32gui.GetDC(hwnd))
         hbmp = win32ui.CreateBitmap()
-        logging.debug(f"Getting icon for hwnd {hwnd}")
 
         try:
             icon_info = win32gui.GetIconInfo(hicon)
-            logging.debug(f"Icon info: {icon_info}")
-            logging.debug(f"Icon info[4]: {icon_info[4]}")
 
             bitmap = BITMAP()
             ctype_handle = ctypes.wintypes.HANDLE(int(icon_info[4]))
             ctypes.windll.gdi32.GetObjectW(
                 ctype_handle, ctypes.sizeof(bitmap), ctypes.byref(bitmap)
             )
-
-            logging.debug(f"Bitmap: {bitmap.bmWidth}x{bitmap.bmHeight}")
 
             hbmp.CreateCompatibleBitmap(hdc, bitmap.bmWidth, bitmap.bmHeight)
             hdc = hdc.CreateCompatibleDC()
