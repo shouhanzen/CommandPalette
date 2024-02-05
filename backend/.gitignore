@@ -4,7 +4,7 @@ secrets.sh
 build
 dist
 public/icons/programs/*.ico
-public/icons/windows/*
+public/icons/windows/*.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
