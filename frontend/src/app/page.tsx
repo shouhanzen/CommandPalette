@@ -5,6 +5,7 @@ import CommandList from "../components/CommandList";
 import SearchBar from "../components/SearchBar";
 import { getTermOverlap, compareCommands } from "../lib/commands";
 import { useRouter } from "next/navigation";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import "./styles.scss";
 
@@ -19,6 +20,22 @@ const CommandPalette = () => {
   const [lastUsedList, setLastUsedList] = useState([] as string[]);
   const router = useRouter();
 
+  useHotkeys(
+    "ctrl+r",
+    (event) => {
+      console.log("Reloading page and clearing cache");
+
+      // Clear cache
+      window.electron.invoke("clear-commands-cache", {});
+
+      // Reload page
+      window.location.reload();
+    },
+    {
+      enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
+    }
+  );
+
   function setErrorGuarded(err: unknown) {
     if (err instanceof Error) {
       // Now TypeScript knows that 'err' is of type Error
@@ -31,7 +48,7 @@ const CommandPalette = () => {
 
   const fetchCommands = async () => {
     try {
-      const commands = await window.electron.invoke("get-commands", {});
+      const commands = await window.electron.invoke("get-commands-cached", {});
       console.log("Commands fetched: ", commands);
       setCommands(commands as Command[]);
     } catch (err) {
@@ -139,16 +156,6 @@ function KeyCaptureEffect(
   searchRef: React.MutableRefObject<HTMLInputElement | null>
 ) {
   const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.ctrlKey && event.key === "r") {
-      event.preventDefault();
-
-      // Reload page
-      window.location.reload();
-
-      console.log("Reloading page");
-      return;
-    }
-
     // Set focus to the search bar
     let banned_keys = [
       "Control",

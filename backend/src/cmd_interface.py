@@ -64,8 +64,33 @@ shells = {"powershell": run_powershell_command, "bash": run_bash_command}
 def get_commands():
     cmd_list = []
 
+    cmd_list.extend(get_commands_from_dir("public/scripts"))
+
+    # If home directory has a .palette/scripts directory, add commands from there
+    home_dir = os.path.expanduser("~")
+    home_scripts_dir = os.path.join(home_dir, ".palette", "scripts")
+
+    if not os.path.exists(home_scripts_dir):
+        os.makedirs(home_scripts_dir)
+
+    if not os.path.exists(os.path.join(home_scripts_dir, "commands.json")):
+        # Also create a commands.json file
+        with open(os.path.join(home_scripts_dir, "commands.json"), "w") as f:
+            f.write("[]")
+
+    try:
+        cmd_list.extend(get_commands_from_dir(home_scripts_dir))
+    except Exception as e:
+        print(f"Error: {e}")
+
+    return cmd_list
+
+
+def get_commands_from_dir(dir: str):
+    cmd_list = []
+
     # Read public/scripts/commands.json
-    with open("public/scripts/commands.json", "r") as f:
+    with open(os.path.join(dir, "commands.json"), "r") as f:
         commands = json.load(f)
 
     for command in commands:
@@ -78,7 +103,7 @@ def get_commands():
                 )
                 continue
 
-        script_path = os.path.join("public", "scripts", command["script"])
+        script_path = os.path.join(dir, command["script"])
         with open(script_path, "r") as f:
             script = f.read()
 
@@ -90,7 +115,7 @@ def get_commands():
             Command(
                 title=command["title"],
                 description=command["description"],
-                command=lambda: shell(script, sudo),
+                command=lambda x=script, s=sudo, sh=shell: sh(x, s),
             )
         )
 

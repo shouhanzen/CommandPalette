@@ -153,6 +153,8 @@ body {
   padding: 10px; /* some padding */
   border-radius: 5px; /* rounded corners */
   margin: 10px 0; /* some margin */
+  z-index: 1;
+
 }
 
 .loading-message {
@@ -161,6 +163,7 @@ body {
   padding: 10px; /* some padding */
   border-radius: 5px; /* rounded corners */
   margin: 10px 0; /* some margin */
+  z-index: 1;
 }
 
 .command-icon {

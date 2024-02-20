@@ -48,6 +48,8 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
+
+    icon: path.join(__dirname, 'palette.ico'),
   });
 
   // https://medium.com/@rbfraphael/building-desktop-apps-with-electron-next-js-without-nextron-01bbf1fdd72e
@@ -76,6 +78,11 @@ function createWindow() {
   win.onerror = (error) => {
     log.error(`Window error: ${error}`);
   }
+
+  // Prevent the window title from being updated
+  win.webContents.on('page-title-updated', (e) => {
+    e.preventDefault();
+  });
 
   // Maximize the window to take up the whole screen
   win.maximize();
@@ -232,13 +239,12 @@ app.on('quit', () => {
       .then(text => log.info(text))
       .catch(error => log.error(error));
   }
+});
 
-  // Kill the backend process
-  // if (backendProcess) {
-  //   log.info("Killing backend process");
-  //   log.info("Backend process PID: " + backendProcess.pid);
-  //   backendProcess.kill();
-  // }
+app.setLoginItemSettings({
+  openAtLogin: true,
+  openAsHidden: true,
+  path: app.getPath('exe'),
 });
 
 ipcMain.on('minimize-app', () => {
@@ -264,8 +270,12 @@ ipcMain.on('run-command', async (event, command) => {
 });
 
 // Pings a series of command contributors
-ipcMain.handle('get-commands', async () => {
-  return commands.get_commands();
+ipcMain.handle('clear-commands-cache', async () => {
+  return commands.clear_cache();
+});
+
+ipcMain.handle('get-commands-cached', async () => {
+  return commands.get_commands_cached();
 });
 
 ipcMain.on('save-settings', (event, settings) => {

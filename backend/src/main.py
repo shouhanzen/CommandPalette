@@ -9,21 +9,26 @@ import src.apps_interface as apps_interface
 import src.open_interface as open_interface
 import src.test_interface as test_interface
 
-import uvicorn
-import subprocess
-import socket
-import signal
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.spotify.core import router as spotify_router
 import src.spotify.core as spotify_core
 
 import logging
+import threading
 
 logging.basicConfig(level=logging.DEBUG)
 
 base_commands = CommandList(commands=[])
 
-contributors = [web_interface, spotify_core, cmd_interface, apps_interface, open_interface, test_interface]
+contributors = [
+    web_interface,
+    spotify_core,
+    cmd_interface,
+    apps_interface,
+    open_interface,
+    test_interface,
+]
 
 
 def build_commands_list():
@@ -31,17 +36,24 @@ def build_commands_list():
     for command in base_commands.commands:
         out.commands.append(command)
 
-    for contributor in contributors:
-        for command in contributor.get_commands():
-            out.commands.append(command)
+    # Use ThreadPoolExecutor to call get_commands() in parallel
+    with ThreadPoolExecutor(max_workers=len(contributors)) as executor:
+        # Submit all get_commands() functions to the executor
+        future_to_contributor = {
+            executor.submit(contributor.get_commands): contributor
+            for contributor in contributors
+        }
+
+        for future in as_completed(future_to_contributor):
+            contributor_commands = future.result()
+            out.commands.extend(contributor_commands)
 
     # Assert that command titles are unique
-    titles = []
+    titles = set()  # Use a set for O(1) lookups
     for command in out.commands:
         if command.title in titles:
             raise ValueError(f"Duplicate command title: {command.title}")
-
-        titles.append(command.title)
+        titles.add(command.title)
 
     return out
 
@@ -61,17 +73,24 @@ app.add_middleware(
 # Commands probably shouldn't be functional and ought to be cached.
 cached_commands = None
 
+command_lock = threading.Lock()
+
+
 # Define a route to return the commands
 @app.get("/commands")
 def get_commands():
     global cached_commands
-    
+
+    command_lock.acquire()
+
     # Build simplified objects
     serializable_commands = []
     cached_commands = build_commands_list()
-    
+
     for command in cached_commands.commands:
         serializable_commands.append(SerializableCommand(**command.dict()))
+
+    command_lock.release()
 
     return serializable_commands
 
@@ -79,11 +98,11 @@ def get_commands():
 @app.post("/run-command")
 def run_command(command: SerializableCommand):
     global cached_commands
-    
+
     print(f"Running command: {command.title}")
-    
+
     print(cached_commands)
-    
+
     if cached_commands is None:
         cached_commands = build_commands_list()
 

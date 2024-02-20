@@ -51,6 +51,8 @@ const commands_data = [
     },
 ];
 
+commands_cache = {};
+
 const command_issuers = [
   // {
   //   name: "uvicorn",
@@ -98,7 +100,20 @@ async function get_commands() {
         titles.add(title);
     }
 
+    commands_cache = commands_temp;
     return commands_temp;
+}
+
+async function get_commands_cached() {
+  if (Object.keys(commands_cache).length === 0) {
+    return await get_commands();
+  }
+
+  return commands_cache;
+}
+
+function clear_cache() {
+  commands_cache = {};
 }
 
 async function commandsFromIssuer(issuer_data, commands_temp) {
@@ -224,3 +239,5 @@ module.exports.runCommand = runCommand;
 module.exports.command_issuers = command_issuers;
 module.exports.register_issuer = register_issuer;
 module.exports.get_issuers = get_issuers;
+module.exports.get_commands_cached = get_commands_cached;
+module.exports.clear_cache = clear_cache;
