@@ -9,6 +9,10 @@ from PIL import Image
 from src.cmd_types import *
 
 from urllib.parse import urlparse
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def start_app(app: str):
     if platform.system() == "Windows":
@@ -51,8 +55,6 @@ def get_prog_commands():
             local_path
         )
 
-        # print(shortcuts)
-
         # Clear out shortcuts with duplicate names
         names = []
         unique_shortcuts = []
@@ -68,8 +70,7 @@ def get_prog_commands():
         cmds = []
 
         for shortcut in unique_shortcuts:
-            # simple_print(shortcut)
-
+            
             # Get icon
             icon_path = ""
             if shortcut["icon"] != "":
@@ -80,7 +81,6 @@ def get_prog_commands():
             dest_path, success = load_icon_from_resource_windows(
                 icon_path, shortcut["name"]
             )
-            # simple_print(icon_path)
 
             remote_icon_path = os.path.join("/", "icons", "default_prog_windows.svg")
             if success:
@@ -93,7 +93,6 @@ def get_prog_commands():
             
             if "Uninstall" in shortcut["name"]:
                 disabled = True
-            
 
             cmds.append(
                 Command(
@@ -117,36 +116,34 @@ def get_prog_commands():
 
 def load_icon_from_resource_windows(path, fname):
     import src.extract_icon as extract_icon
-
+    
+    # Store icon in public/icons/programs
+    dest_path = os.path.join(
+        os.getcwd(), "public", "icons", "programs", fname + ".ico"
+    )
+    
+    # Check timestamps of existing icon and file
+    # If icon is newer, use it
+    # If file is newer, extract icon and use it
+    if os.path.exists(dest_path) and os.path.exists(path):
+        if os.path.getmtime(dest_path) > os.path.getmtime(path):
+            logger.debug(f"Using existing icon for {path}")
+            
+            return dest_path, True
+    
     success = False
     dest_path = ""
     if path.endswith(".exe"):
         try:
             icon = extract_icon.extract_icon(path, extract_icon.IconSize.LARGE)
-            # print(icon)
-
-            # Store icon in public/icons/programs
-            dest_path = os.path.join(
-                os.getcwd(), "public", "icons", "programs", fname + ".ico"
-            )
-            
             icon.save(dest_path)
 
-            # print("Saving icon for " + path + " to " + dest_path + ".")
             success = True
 
         except Exception as e:
             print(f"Error extracting icon for {path}: {e}")
 
     elif path.endswith(".ico"):
-        dest_path = os.path.join(
-            os.getcwd(),
-            "public",
-            "icons",
-            "programs",
-            fname + ".ico",
-        )
-
         try:
             shutil.copy(
                 path,
