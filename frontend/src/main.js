@@ -92,7 +92,10 @@ async function tryStartBackend(win) {
 
     log.info ("Spawning backend, using portfinder to find open port");
 
-    await portfinder.getPortPromise().then((port) => {
+    await portfinder.getPortPromise({
+      port: 21410,    // minimum port
+      stopPort: 30000 // maximum port
+    }).then((port) => {
       portUsed = port;
 
       // Construct the full path to the executable
