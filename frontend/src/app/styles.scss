@@ -58,6 +58,20 @@ body {
   padding-top: 5px;
 }
 
+.command-palette-footer {
+    /* Keep header on top */
+    position: sticky;
+    bottom: 0;
+    z-index: 1; /* Ensure it sits on top of other elements */
+
+    padding-left: 20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: #1e1e1e;
+
+    font-size: small;
+}
+
 .command-input {
   width: 100%;
   padding: 10px;

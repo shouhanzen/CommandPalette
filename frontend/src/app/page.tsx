@@ -9,6 +9,8 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import "./styles.scss";
 
+let CMD_CUTOFF = 50;
+
 const CommandPalette = () => {
   const [commands, setCommands] = useState([] as Command[]);
   const [isLoading, setIsLoading] = useState(true);
@@ -128,6 +130,11 @@ const CommandPalette = () => {
 
   filteredCommands.sort(compareCommands(lastUsedList, searchTerm));
 
+  // Truncate filtered commands
+  if (filteredCommands.length > CMD_CUTOFF) {
+    filteredCommands.length = CMD_CUTOFF;
+  }
+
   return (
     <div className="command-palette">
       <div className="command-palette-header">
@@ -147,6 +154,10 @@ const CommandPalette = () => {
           runCommand={runCommand}
           searchBarFocused={searchBarFocused}
         />
+      </div>
+
+      <div className="command-palette-footer">
+        <p>Showing top {filteredCommands.length} commands</p>
       </div>
     </div>
   );
