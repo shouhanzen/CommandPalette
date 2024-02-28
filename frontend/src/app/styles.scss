@@ -60,8 +60,8 @@ body {
 
 .command-palette-footer {
     /* Keep header on top */
-    position: sticky;
-    bottom: 0;
+    // position: sticky;
+    // bottom: -20px;
     z-index: 1; /* Ensure it sits on top of other elements */
 
     padding-left: 20px;

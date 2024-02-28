@@ -135,6 +135,12 @@ const CommandPalette = () => {
     filteredCommands.length = CMD_CUTOFF;
   }
 
+  let num_commands_statement = `Showing top ${filteredCommands.length} command${filteredCommands.length != 1 ? 's' : ''}`;
+
+  if (filteredCommands.length == 0) {
+    num_commands_statement = "No commands found";
+  }
+
   return (
     <div className="command-palette">
       <div className="command-palette-header">
@@ -157,7 +163,7 @@ const CommandPalette = () => {
       </div>
 
       <div className="command-palette-footer">
-        <p>Showing top {filteredCommands.length} commands</p>
+        <p>{num_commands_statement}</p>
       </div>
     </div>
   );

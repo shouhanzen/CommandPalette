@@ -20,10 +20,14 @@ class SerializableCommand(BaseModel):
     icon: str = ""
     disabled: bool = False
 
+class SerializableCommandGroup(BaseModel):
+    title: str
+    commands: List[SerializableCommand] = []
+    refresh_on_open: bool = False
 
 class CommandList:
-    def __init__(self, commands=None):
-        if commands is None:
-            self.commands = []
+    def __init__(self, cmd_groups=None):
+        if cmd_groups is None:
+            self.cmd_groups = []
         else:
-            self.commands = commands
+            self.cmd_groups = cmd_groups

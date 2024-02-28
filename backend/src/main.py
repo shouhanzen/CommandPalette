@@ -3,39 +3,39 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from src.cmd_types import *
 
-import src.web_interface as web_interface
-import src.cmd_interface as cmd_interface
-import src.apps_interface as apps_interface
-import src.open_interface as open_interface
-import src.test_interface as test_interface
+
+from typing import List
+
+from src.contributors.apps_interface import AppsInterface
+from src.contributors.cmd_interface import CmdInterface
+from src.contributors.spotify_interface import SpotifyInterface
+from src.contributors.web_interface import WebInterface
+from src.contributors.test_interface import TestInterface
+from src.contributors.open_interface import OpenInterface
+from src.contributors.contributor import CommandContributor
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from src.spotify.core import router as spotify_router
-import src.spotify.core as spotify_core
+from src.contributors.spotify_interface import router as spotify_router
 
 import logging
 import threading
 
 logging.basicConfig(level=logging.DEBUG)
 
-base_commands = CommandList(commands=[])
-
-contributors = [
-    web_interface,
-    spotify_core,
-    cmd_interface,
-    apps_interface,
-    open_interface,
-    test_interface,
+contributors: List[CommandContributor] = [
+    WebInterface(),
+    SpotifyInterface(),
+    CmdInterface(),
+    AppsInterface(),
+    OpenInterface(),
+    TestInterface(),
 ]
 
 
 def build_commands_list():
     out = CommandList()
-    for command in base_commands.commands:
-        out.commands.append(command)
-
+    
     # Use ThreadPoolExecutor to call get_commands() in parallel
     with ThreadPoolExecutor(max_workers=len(contributors)) as executor:
         # Submit all get_commands() functions to the executor
@@ -46,11 +46,11 @@ def build_commands_list():
 
         for future in as_completed(future_to_contributor):
             contributor_commands = future.result()
-            out.commands.extend(contributor_commands)
+            out.cmd_groups.extend(contributor_commands)
 
     # Assert that command titles are unique
     titles = set()  # Use a set for O(1) lookups
-    for command in out.commands:
+    for command in out.cmd_groups:
         if command.title in titles:
             raise ValueError(f"Duplicate command title: {command.title}")
         titles.add(command.title)
@@ -87,7 +87,7 @@ def get_commands():
     serializable_commands = []
     cached_commands = build_commands_list()
 
-    for command in cached_commands.commands:
+    for command in cached_commands.cmd_groups:
         serializable_commands.append(SerializableCommand(**command.dict()))
 
     command_lock.release()
@@ -106,7 +106,7 @@ def run_command(command: SerializableCommand):
     if cached_commands is None:
         cached_commands = build_commands_list()
 
-    for c in cached_commands.commands:
+    for c in cached_commands.cmd_groups:
         if c.title == command.title:
             c.command()
             return {"message": "Command executed successfully"}
@@ -122,20 +122,6 @@ def quit():
 @app.get("/health")
 def health():
     return "OK"
-
-
-# def signal_handler(signum, frame):
-#     # Perform necessary cleanup tasks
-#     print(f"Received signal {signum}, shutting down.")
-#     # Here you would add your cleanup logic
-
-#     # Exit the application
-#     exit(0)
-
-
-# signal.signal(signal.SIGINT, signal_handler)
-# signal.signal(signal.SIGTERM, signal_handler)
-
 
 # Link in various routers
 app.include_router(spotify_router)
