@@ -5,7 +5,7 @@ import json
 from src.contributors.contributor import CommandContributor
 
 class WebInterface(CommandContributor):
-    def open_url(url: str):
+    def open_url(self, url: str):
         print(f"Opening {url}")
 
         webbrowser.open(url)

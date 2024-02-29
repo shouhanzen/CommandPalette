@@ -10,7 +10,7 @@ class CmdInterface(CommandContributor):
 
         self.shells = {"powershell": self.run_powershell_command, "bash": self.run_bash_command}
         super().__init__()
-    def run_powershell_command(command: str, sudo: bool = False):
+    def run_powershell_command(self, command: str, sudo: bool = False):
         if platform.system() != "Windows":
             print("This function can only be run on Windows.")
             return
@@ -30,7 +30,7 @@ class CmdInterface(CommandContributor):
             print(f"Output: {output.decode().strip()}")
 
 
-    def run_bash_command(command: str, sudo: bool = False):
+    def run_bash_command(self, command: str, sudo: bool = False):
         if platform.system() != "Windows":
             print("This function is intended for use on Windows with Git Bash.")
             return
