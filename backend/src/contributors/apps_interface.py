@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class AppsInterface(CommandContributor):
-    def start_app(app: str):
+    def start_app(self, app: str):
         if platform.system() == "Windows":
 
             command = f'start "" "{app}"'

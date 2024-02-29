@@ -181,7 +181,8 @@ class OpenInterface(CommandContributor):
         # Clean out the icons directory
         icon_dir = os.path.join(os.getcwd(), "public", "icons", "windows")
         for f in os.listdir(icon_dir):
-            os.remove(os.path.join(icon_dir, f))
+            if f is not '.gitignore':
+                os.remove(os.path.join(icon_dir, f))
 
         for hwnd, title in windows_processed:
 
