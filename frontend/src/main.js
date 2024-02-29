@@ -12,7 +12,6 @@ const { registerShortcut, unregisterShortcut } = require('./shortcuts');
 
 const portfinder = require('portfinder');
 const { exec, spawn, execFile } = require('child_process');
-const Logger = require('electron-log');
 
 // Set log level
 log.initialize({ preload: true });
@@ -187,6 +186,12 @@ function toggleWindow() {
     win.show();
 
     resetSearch();
+  }
+
+  // If the window is now visible, try to cleanup the delete-on-open commands
+  if (win.isVisible()) {
+    log.info("Cleaning up delete-on-open commands");
+    commands.cleanup_delete_on_open(win);
   }
 }
 

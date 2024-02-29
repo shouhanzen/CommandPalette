@@ -220,6 +220,7 @@ class OpenInterface(CommandContributor):
                     description=executable_path,
                     command=lambda x=hwnd: self.focus_window(x),
                     icon=remote_icon_path,
+                    delete_on_open=True,
                 )
             )
 
@@ -229,7 +230,11 @@ class OpenInterface(CommandContributor):
                     description=executable_path,
                     command=lambda x=hwnd: self.close_window(x),
                     icon=remote_icon_path,
+                    delete_on_open=True,
                 )
             )
 
         return commands
+    
+    def patch_commands(self):
+        return self.get_commands()

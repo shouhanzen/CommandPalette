@@ -130,12 +130,18 @@ const CommandPalette = () => {
 
   filteredCommands.sort(compareCommands(lastUsedList, searchTerm));
 
+  let filtered_cmd_num = filteredCommands.length;
+
+  let num_commands_statement = '';
+
   // Truncate filtered commands
   if (filteredCommands.length > CMD_CUTOFF) {
     filteredCommands.length = CMD_CUTOFF;
+    num_commands_statement = `Showing ${CMD_CUTOFF} of ${filtered_cmd_num} commands`;
   }
-
-  let num_commands_statement = `Showing top ${filteredCommands.length} command${filteredCommands.length != 1 ? 's' : ''}`;
+  else {
+    num_commands_statement = `Showing ${filteredCommands.length} command${filteredCommands.length != 1 ? 's' : ''}`;
+  }
 
   if (filteredCommands.length == 0) {
     num_commands_statement = "No commands found";

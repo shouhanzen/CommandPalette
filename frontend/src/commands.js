@@ -145,6 +145,35 @@ async function commandsFromIssuer(issuer_data, commands_temp) {
   }
 }
 
+async function patchCommandsFromIssuer(issuer_data, commands_temp) {
+  try {
+    const response = await fetch(issuer_data.url + "/patch_commands");
+    // Check if the response is valid
+    if (!response.ok) {
+      throw `Error patching commands from ${issuer_data.name}: ${response.status} ${response.statusText}`;
+    }
+
+    const commands = await response.json();
+
+    for (c_ind in commands) {
+      command = commands[c_ind];
+      command.issuer = issuer_data.name;
+
+      if (!("icon" in command)) {
+      }
+      else if (command.icon === "")
+        delete command.icon;
+      else {
+        command.icon = issuer_data.url + command.icon;
+      }
+    }
+
+    commands_temp.push(...commands);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 async function runCommand(command, win, app) {
   // Check the issuer of the command
   for (issuer in command_issuers) {
@@ -232,6 +261,42 @@ async function register_issuer(issuer, win) {
   win.webContents.send('new-commands', new_commands);
 }
 
+async function patch_commands(win) {
+  cmd_cache = await get_commands_cached();
+
+  // For each command in the command cache, if the command is marked as "delete_on_open", remove it from the cache
+  cmd_changed = false;
+
+  for (i=cmd_cache.length-1; i>=0; i--) {
+    command = cmd_cache[i];
+
+    if (command.delete_on_open) {
+      log.info("Removing command from cache: " + command.title);
+      cmd_cache.splice(i, 1);
+
+      cmd_deleted = true;
+    }
+  }
+
+  // Patch commands
+  for (issuer in command_issuers) {
+    const issuer_data = command_issuers[issuer];
+
+    cmd_cache_len = cmd_cache.length;
+    await patchCommandsFromIssuer(issuer_data, cmd_cache);
+
+    if (cmd_cache.length > cmd_cache_len) {
+      cmd_changed = true;
+    }
+  }
+
+  if (cmd_deleted) {
+    win.webContents.send('new-commands', cmd_cache);
+  }
+
+  return cmd_deleted;
+}
+
 // export default commands_data;
 module.exports.commands_data = commands_data;
 module.exports.get_commands = get_commands;
@@ -241,3 +306,4 @@ module.exports.register_issuer = register_issuer;
 module.exports.get_issuers = get_issuers;
 module.exports.get_commands_cached = get_commands_cached;
 module.exports.clear_cache = clear_cache;
+module.exports.cleanup_delete_on_open = patch_commands;

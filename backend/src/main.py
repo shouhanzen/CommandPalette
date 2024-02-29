@@ -32,15 +32,22 @@ contributors: List[CommandContributor] = [
     TestInterface(),
 ]
 
-
 def build_commands_list():
+    return collect_commands(lambda contributor: contributor.get_commands)
+
+def build_patch_list():
+    global contributors
+    
+    return collect_commands(lambda contributor: contributor.patch_commands)
+
+def collect_commands(get_cmds_func):
     out = CommandList()
     
     # Use ThreadPoolExecutor to call get_commands() in parallel
     with ThreadPoolExecutor(max_workers=len(contributors)) as executor:
         # Submit all get_commands() functions to the executor
         future_to_contributor = {
-            executor.submit(contributor.get_commands): contributor
+            executor.submit(get_cmds_func(contributor)): contributor
             for contributor in contributors
         }
 
@@ -94,6 +101,21 @@ def get_commands():
 
     return serializable_commands
 
+# Return list of commands to patch on
+@app.get("/patch_commands")
+def get_patch_commands():
+    command_lock.acquire()
+
+    # Build simplified objects
+    serializable_commands = []
+    cached_commands = build_patch_list()
+
+    for command in cached_commands.cmd_groups:
+        serializable_commands.append(SerializableCommand(**command.dict()))
+
+    command_lock.release()
+
+    return serializable_commands
 
 @app.post("/run-command")
 def run_command(command: SerializableCommand):

@@ -10,6 +10,7 @@ class Command(BaseModel):
     closes_palette: bool = True
     icon: str = ""
     disabled: bool = False # Determines whether the command is greyed and unselectable out in the UI
+    delete_on_open: bool = False # Determines whether the command is deleted from the palette when the palette is opened
 
 
 class SerializableCommand(BaseModel):
@@ -19,6 +20,7 @@ class SerializableCommand(BaseModel):
     closes_palette: bool = True
     icon: str = ""
     disabled: bool = False
+    delete_on_open: bool = False
 
 class SerializableCommandGroup(BaseModel):
     title: str
