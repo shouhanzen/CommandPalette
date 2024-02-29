@@ -23,27 +23,27 @@ sp = spotipy.Spotify(auth_manager=sp_oauth)
 
 
 class SpotifyInterface(CommandContributor):
-    def play_song(song_uri):
+    def play_song(self, song_uri):
         """Play a song by its URI"""
         sp.start_playback(uris=[song_uri])
 
 
-    def stop_song():
+    def stop_song(self):
         """Stop the current song"""
         sp.pause_playback()
 
 
-    def resume_song():
+    def resume_song(self):
         """Resume the current song"""
         sp.start_playback()
 
 
-    def skip_song():
+    def skip_song(self):
         """Skip the current song"""
         sp.next_track()
 
 
-    def shuffle_playback(state=True):
+    def shuffle_playback(self, state=True):
         """Turn shuffle on or off"""
         sp.shuffle(state=state)
 
@@ -87,6 +87,6 @@ class SpotifyInterface(CommandContributor):
         return commands
 
 
-    @router.get("/callback")
-    def callback():
-        return {"message": "Callback route for Spotify authentication"}
+@router.get("/callback")
+def callback():
+    return {"message": "Callback route for Spotify authentication"}
