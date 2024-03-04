@@ -14,7 +14,7 @@ import logging
 from src.contributors.contributor import CommandContributor
 
 logger = logging.getLogger(__name__)
-
+logger.setLevel(logging.INFO)
 
 class AppsInterface(CommandContributor):
     def start_app(self, app: str):

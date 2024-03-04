@@ -181,19 +181,15 @@ class OpenInterface(CommandContributor):
         # Clean out the icons directory
         icon_dir = os.path.join(os.getcwd(), "public", "icons", "windows")
         for f in os.listdir(icon_dir):
-            if f is not '.gitignore':
+            if f != '.gitignore':
                 os.remove(os.path.join(icon_dir, f))
 
         for hwnd, title in windows_processed:
-
-            print(f"Processing window: {title}")
 
             # Get executable path
             executable_path = self.get_executable_path(hwnd)
             if executable_path is None:
                 executable_path = "Unknown"
-
-            print(f"Executable path: {executable_path}")
 
             icon = self.get_icon(hwnd, large_icon=True)
 
@@ -201,7 +197,6 @@ class OpenInterface(CommandContributor):
             # Hash the title to avoid issues with special characters
             remote_icon_path = ""
             title_hash = str(hash(title))
-            print(title_hash)
 
             if icon:
                 save_path = os.path.join(
@@ -212,8 +207,6 @@ class OpenInterface(CommandContributor):
                 remote_icon_path = save_path.replace(
                     os.path.join(os.getcwd(), "public"), ""
                 )
-
-            print("Command title: " + title)
 
             commands.append(
                 Command(
